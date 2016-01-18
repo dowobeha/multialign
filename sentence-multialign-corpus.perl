@@ -52,11 +52,11 @@ DAY: while($dayfile = <LS>) {
 }
 
 sub align {
-    print STDERR "$preprocessor -l $l1 < $dir/$l1/$dayfile" . "\n";
+#    print STDERR "$preprocessor -l $l1 < $dir/$l1/$dayfile" . "\n";
   my @TXT1native = `$preprocessor -l $l1 < $dir/$l1/$dayfile`;
   #my @TXT2native = `$preprocessor -l $l2 < $dir/$l2/$dayfile`;
 
-  print STDERR "TXT1native: " . scalar(@TXT1native) . "\n";
+#  print STDERR "TXT1native: " . scalar(@TXT1native) . "\n";
 
   my %TXT2native = ();
   for my $lang (@TGT_LANGS) {
@@ -66,7 +66,7 @@ sub align {
 #      print STDERR "abc is of type " . ref(@abc) . "\n";
 #      print STDERR "abc is of type " . ref(\@abc) . "\n";
 	  $TXT2native{$lang} = \@raw_text;
-  print STDERR "TXT2native{$lang}: " . scalar(@{$TXT2native{$lang}}) . "\n";
+#  print STDERR "TXT2native{$lang}: " . scalar(@{$TXT2native{$lang}}) . "\n";
   }
 
   
@@ -101,8 +101,8 @@ sub align {
 #  print STDERR $TXT2_HASH{$TGT_LANGS[0]};
   my @TXT2 = @{$TXT2_HASH{$TGT_LANGS[0]}};
 
-  print STDERR "TXT1: " . scalar(@TXT1) . "\n";
-  print STDERR "TXT2: " . scalar(@TXT2) . "\n";
+#  print STDERR "TXT1: " . scalar(@TXT1) . "\n";
+#  print STDERR "TXT2: " . scalar(@TXT2) . "\n";
 
   open(OUT1, ">$outdir/$l1/$dayfile");
   open(OUT2, ">$outdir/$TGT_LANGS[0]/$dayfile");
