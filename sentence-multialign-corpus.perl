@@ -20,6 +20,7 @@ if (scalar(@ARGV) < 2) {
 die unless scalar(@ARGV) >= 2;
 
 my @LANGS = @ARGV;
+my @TGT_LANGS = @LANGS[1,-1];
 my $l1 = $LANGS[0];
 my $l2 = $LANGS[1];
 for my $lang (@LANGS) {
@@ -41,8 +42,8 @@ my ($dayfile,$s1); # globals for reporting reasons
 open(LS,"ls $dir/$l1|");
 DAY: while($dayfile = <LS>) {
   chop($dayfile);
-  for my $lang (@LANGS) {
-    if ($lang ne $l1 && ! -e "$dir/$lang/$dayfile") {
+  for my $lang (@TGT_LANGS) {
+    if (! -e "$dir/$lang/$dayfile") {
 	print "$dayfile only for $l1, not $lang, skipping\n";
 	next DAY;
     }
@@ -51,22 +52,60 @@ DAY: while($dayfile = <LS>) {
 }
 
 sub align {
-  my @TXT1native= `$preprocessor -l $l1 < $dir/$l1/$dayfile`;
-  my @TXT2native = `$preprocessor -l $l2 < $dir/$l2/$dayfile`;
-  my @TXT1;
-  my @TXT2;
+    print STDERR "$preprocessor -l $l1 < $dir/$l1/$dayfile" . "\n";
+  my @TXT1native = `$preprocessor -l $l1 < $dir/$l1/$dayfile`;
+  #my @TXT2native = `$preprocessor -l $l2 < $dir/$l2/$dayfile`;
+
+  print STDERR "TXT1native: " . scalar(@TXT1native) . "\n";
+
+  my %TXT2native = ();
+  for my $lang (@TGT_LANGS) {
+      my @raw_text = `$preprocessor -l $lang < $dir/$lang/$dayfile`;
+#
+#      my @raw_text_array = split(/^/m, $raw_text);
+#      print STDERR "abc is of type " . ref(@abc) . "\n";
+#      print STDERR "abc is of type " . ref(\@abc) . "\n";
+	  $TXT2native{$lang} = \@raw_text;
+  print STDERR "TXT2native{$lang}: " . scalar(@{$TXT2native{$lang}}) . "\n";
+  }
+
   
+  my @TXT1;
+  #my @TXT2;
+  
+  my %TXT2_HASH = ();
+#  for my $lang (@TGT_LANGS) {
+#    $TXT2_HASH{$lang} = [];
+#  }
   
   #change perl encoding
   foreach my $line (@TXT1native) {
   	push(@TXT1,decode_utf8($line));
   }
-foreach my $line (@TXT2native) {
-  	push(@TXT2,decode_utf8($line));
-  }  
-  
-  open(OUT1, ">$outdir/$l1-$l2/$l1/$dayfile");
-  open(OUT2, ">$outdir/$l1-$l2/$l2/$dayfile");
+
+  for my $lang (@TGT_LANGS) {
+      my @utf8_array = ();
+    foreach my $line (@{$TXT2native{$lang}}) {
+      push(@utf8_array, decode_utf8($line));
+    }
+    $TXT2_HASH{$lang} = \@utf8_array;
+  }
+#  print STDERR "a " . $TGT_LANGS[0] . "\t" . $TXT2_HASH{$TGT_LANGS[0]} . "\n";
+#  print STDERR "b " . ref($TXT2_HASH{$TGT_LANGS[0]}) . "\n";
+#  print STDERR "c " . ref(@{$TXT2_HASH{$TGT_LANGS[0]}}) . "\n";
+#  print STDERR "d " . (scalar $TXT2_HASH{$TGT_LANGS[0]}) . "\n";
+#  print STDERR "e " . (scalar @{$TXT2_HASH{$TGT_LANGS[0]}}) . "\n";
+#  for my $zzz (@{$TXT2_HASH{$TGT_LANGS[0]}}) {
+#      print "f " . $zzz;
+#  }
+#  print STDERR $TXT2_HASH{$TGT_LANGS[0]};
+  my @TXT2 = @{$TXT2_HASH{$TGT_LANGS[0]}};
+
+  print STDERR "TXT1: " . scalar(@TXT1) . "\n";
+  print STDERR "TXT2: " . scalar(@TXT2) . "\n";
+
+  open(OUT1, ">$outdir/$l1/$dayfile");
+  open(OUT2, ">$outdir/$TGT_LANGS[0]/$dayfile");
   
   	binmode(OUT1, ":utf8");
 	binmode(OUT2, ":utf8");
