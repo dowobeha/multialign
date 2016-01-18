@@ -104,11 +104,18 @@ sub align {
 #  print STDERR "TXT1: " . scalar(@TXT1) . "\n";
 #  print STDERR "TXT2: " . scalar(@TXT2) . "\n";
 
+
+
   open(OUT1, ">$outdir/$l1/$dayfile");
-  open(OUT2, ">$outdir/$TGT_LANGS[0]/$dayfile");
+  binmode(OUT1, ":utf8");
+
+  my %OUT2 = ();
+  for my $lang (@TGT_LANGS) {
+    open($OUT2{$lang}, ">$outdir/$lang/$dayfile");
+    binmode($OUT2{$lang}, ":utf8");  
+  }
   
-  	binmode(OUT1, ":utf8");
-	binmode(OUT2, ":utf8");
+  my $fr_out = $OUT2{"fr"};
 
 
   for(my $i2=0,my $i1=0; $i1<scalar(@TXT1) && $i2<scalar(@TXT2);) {
@@ -121,7 +128,7 @@ sub align {
 	my $c2 = $1;
 	if ($c1 == $c2) {
 	  print OUT1 $TXT1[$i1++];
-	  print OUT2 $TXT2[$i2++];
+	  print $fr_out $TXT2[$i2++];
 	}
 	elsif ($c1 < $c2) {
 	  $i1 = &skip(\@TXT1,$i1+1,'^<CHAPTER ID=\"?\d+\"?');
@@ -143,7 +150,7 @@ sub align {
 	my $s2 = $1;
 	if ($s1 == $s2) {
 	  print OUT1 $TXT1[$i1++];
-	  print OUT2 $TXT2[$i2++];
+	  print $fr_out $TXT2[$i2++];
 	}
 	elsif ($s1 < $s2) {
 	  $i1 = &skip(\@TXT1,$i1+1,'^<SPEAKER ID=\"?\d+\"?');
@@ -171,7 +178,7 @@ sub align {
 		  print OUT1 $sent1;
 	      }
 	      foreach my $sent2 (@$SENTS2) {
-		  print OUT2 $sent2;
+		  print $fr_out $sent2;
 	      }
 	  }
       }
@@ -299,12 +306,12 @@ sub sentence_align {
     for(my $i=$i2;$i<$NEXT{$i1}{$i2}[1];$i++) {
        $sent2string .= " " unless $i == $i2;
        $sent2string .= $$P2[$i];
-#      print OUT2 " " unless $i == $i2;
-#      print OUT2 $$P2[$i];
+#      print $fr_out " " unless $i == $i2;
+#      print $fr_out $$P2[$i];
     }
     $sent2string .= "\n";
     push @SENTS2, $sent2string;
-#    print OUT2 "\n";
+#    print $fr_out "\n";
     ($i1,$i2) = @{$NEXT{$i1}{$i2}};
   }  
   # Return references to the two arrays
