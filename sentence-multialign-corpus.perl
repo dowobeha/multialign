@@ -13,20 +13,39 @@ my $dir = "txt";
 my $outdir = "multialigned";
 my $preprocessor = "$Bin/tools/split-sentences.perl -q";
 
-my ($l1,$l2) = @ARGV;
-die unless -e "$dir/$l1";
-die unless -e "$dir/$l2";
+if (scalar(@ARGV) < 2) {
+    die "Usage:\t$0 tgtLang srcLang1 ... srcLangN\n";
+}
 
-`mkdir -p $outdir/$l1-$l2/$l1`;
-`mkdir -p $outdir/$l1-$l2/$l2`;
+die unless scalar(@ARGV) >= 2;
+
+my @LANGS = @ARGV;
+my $l1 = $LANGS[0];
+my $l2 = $LANGS[1];
+for my $lang (@LANGS) {
+    die unless -e "$dir/$lang";
+}
+
+#my ($l1,$l2) = @ARGV;
+#die unless -e "$dir/$l1";
+#die unless -e "$dir/$l2";
+
+for my $lang (@LANGS) {
+    `mkdir -p $outdir/$lang`;
+}
+
+#`mkdir -p $outdir/$l1-$l2/$l1`;
+#`mkdir -p $outdir/$l1-$l2/$l2`;
 
 my ($dayfile,$s1); # globals for reporting reasons
 open(LS,"ls $dir/$l1|");
-while($dayfile = <LS>) {
+DAY: while($dayfile = <LS>) {
   chop($dayfile);
-  if (! -e "$dir/$l2/$dayfile") {
-    print "$dayfile only for $l1, not $l2, skipping\n";
-    next;
+  for my $lang (@LANGS) {
+    if ($lang ne $l1 && ! -e "$dir/$lang/$dayfile") {
+	print "$dayfile only for $l1, not $lang, skipping\n";
+	next DAY;
+    }
   }
   &align();
 }
