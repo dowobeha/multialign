@@ -27,16 +27,9 @@ for my $lang (@LANGS) {
     die unless -e "$dir/$lang";
 }
 
-#my ($l1,$l2) = @ARGV;
-#die unless -e "$dir/$l1";
-#die unless -e "$dir/$l2";
-
 for my $lang (@LANGS) {
     `mkdir -p $outdir/$lang`;
 }
-
-#`mkdir -p $outdir/$l1-$l2/$l1`;
-#`mkdir -p $outdir/$l1-$l2/$l2`;
 
 my ($dayfile,$s1); # globals for reporting reasons
 open(LS,"ls $dir/$l1|");
@@ -52,59 +45,30 @@ DAY: while($dayfile = <LS>) {
 }
 
 sub align {
-#    print STDERR "$preprocessor -l $l1 < $dir/$l1/$dayfile" . "\n";
+
   my @TXT1native = `$preprocessor -l $l1 < $dir/$l1/$dayfile`;
-  #my @TXT2native = `$preprocessor -l $l2 < $dir/$l2/$dayfile`;
-
-#  print STDERR "TXT1native: " . scalar(@TXT1native) . "\n";
-
   my %TXT2native = ();
   for my $lang (@TGT_LANGS) {
       my @raw_text = `$preprocessor -l $lang < $dir/$lang/$dayfile`;
-#
-#      my @raw_text_array = split(/^/m, $raw_text);
-#      print STDERR "abc is of type " . ref(@abc) . "\n";
-#      print STDERR "abc is of type " . ref(\@abc) . "\n";
-	  $TXT2native{$lang} = \@raw_text;
-#  print STDERR "TXT2native{$lang}: " . scalar(@{$TXT2native{$lang}}) . "\n";
+      $TXT2native{$lang} = \@raw_text;
   }
-
   
   my @TXT1;
-  #my @TXT2;
-  
   my %TXT2_HASH = ();
-#  for my $lang (@TGT_LANGS) {
-#    $TXT2_HASH{$lang} = [];
-#  }
   
   #change perl encoding
   foreach my $line (@TXT1native) {
-  	push(@TXT1,decode_utf8($line));
+    push(@TXT1,decode_utf8($line));
   }
 
   for my $lang (@TGT_LANGS) {
-      my @utf8_array = ();
+    my @utf8_array = ();
     foreach my $line (@{$TXT2native{$lang}}) {
       push(@utf8_array, decode_utf8($line));
     }
     $TXT2_HASH{$lang} = \@utf8_array;
   }
-#  print STDERR "a " . $TGT_LANGS[0] . "\t" . $TXT2_HASH{$TGT_LANGS[0]} . "\n";
-#  print STDERR "b " . ref($TXT2_HASH{$TGT_LANGS[0]}) . "\n";
-#  print STDERR "c " . ref(@{$TXT2_HASH{$TGT_LANGS[0]}}) . "\n";
-#  print STDERR "d " . (scalar $TXT2_HASH{$TGT_LANGS[0]}) . "\n";
-#  print STDERR "e " . (scalar @{$TXT2_HASH{$TGT_LANGS[0]}}) . "\n";
-#  for my $zzz (@{$TXT2_HASH{$TGT_LANGS[0]}}) {
-#      print "f " . $zzz;
-#  }
-#  print STDERR $TXT2_HASH{$TGT_LANGS[0]};
-  my @TXT2 = @{$TXT2_HASH{$TGT_LANGS[0]}};
-
-#  print STDERR "TXT1: " . scalar(@TXT1) . "\n";
-#  print STDERR "TXT2: " . scalar(@TXT2) . "\n";
-
-
+#  my @TXT2 = @{$TXT2_HASH{$TGT_LANGS[0]}};
 
   open(OUT1, ">$outdir/$l1/$dayfile");
   binmode(OUT1, ":utf8");
@@ -118,55 +82,99 @@ sub align {
   my $fr_out = $OUT2{"fr"};
 
 
-  for(my $i2=0,my $i1=0; $i1<scalar(@TXT1) && $i2<scalar(@TXT2);) {
-    
-    # match chapter start
-    if ($TXT1[$i1] =~ /^<CHAPTER ID=\"?(\d+)\"?/) {
-      my $c1 = $1;
-      #print "CHAPTER $1\n";
-      if ($TXT2[$i2] =~ /^<CHAPTER ID=\"?(\d+)\"?/) {
-	my $c2 = $1;
-	if ($c1 == $c2) {
-	  print OUT1 $TXT1[$i1++];
-	  print $fr_out $TXT2[$i2++];
-	}
-	elsif ($c1 < $c2) {
-	  $i1 = &skip(\@TXT1,$i1+1,'^<CHAPTER ID=\"?\d+\"?');
-	}
-	else {
-	  $i2 = &skip(\@TXT2,$i2+1,'^<CHAPTER ID=\"?\d+\"?');
-	}
-      }
-      else {
-	$i2 = &skip(\@TXT2,$i2,'^<CHAPTER ID=\"?\d+\"?');
-      }
+#  for(my $i2=0,my $i1=0; $i1<scalar(@TXT1) && $i2<scalar(@TXT2);) {
+
+  my %lineIndex;
+  my %numLines;
+  for my $lang (@LANGS) {
+      $lineIndex{$lang} = 0;
+      my $array_of_lines = $TXT2_HASH{$lang};
+      print STDERR "array_of_lines = " . @$array_of_lines . "\n";
+      $numLines{$lang} = scalar(@$array_of_lines);
+      print STDERR "numLines{$lang} = " . $numLines{$lang} . "\n";
+  }
+
+  OUTER_LOOP: while (1==1) {
+
+    for my $lang (@LANGS) {
+      last OUTER_LOOP unless $lineIndex{$lang} < $numLines{$lang};
     }
+  
+#    my $i1 = $lineIndex{$l1};
+
+    # match chapter start
+#    if ($TXT1[$i1] =~ /^<CHAPTER ID=\"?(\d+)\"?/) { # IF1
+    if ($TXT1[$lineIndex{$l1}] =~ /^<CHAPTER ID=\"?(\d+)\"?/) { # IF1
+      my $c1 = $1;
+      my $skip_in_txt1 = 0;
+      for my $lang (@TGT_LANGS) { # for each tgt lang
+        my @TXT2 = @{$TXT2_HASH{$lang}};
+      #print "CHAPTER $1\n";
+#      if ($TXT2[$i2] =~ /^<CHAPTER ID=\"?(\d+)\"?/) { # IF2
+      if ($TXT2[$lineIndex{$lang}] =~ /^<CHAPTER ID=\"?(\d+)\"?/) { # IF2
+	my $c2 = $1;
+	if ($c1 == $c2) { # IF3
+#	  print OUT1 $TXT1[$i1++];
+	  print OUT1 $TXT1[$lineIndex{$l1}++];
+#	  print $fr_out $TXT2[$i2++];
+	  print $fr_out $TXT2[$lineIndex{$lang}++];
+	} # IF3
+	elsif ($c1 < $c2) { # ELSIF3
+          $skip_in_txt1 = 1;
+#	  $i1 = &skip(\@TXT1,$i1+1,'^<CHAPTER ID=\"?\d+\"?');
+	} # ELSIF3
+	else { # ELSE3
+#	  $i2 = &skip(\@TXT2,$i2+1,'^<CHAPTER ID=\"?\d+\"?');
+	  $lineIndex{$lang} = &skip(\@TXT2,$lineIndex{$lang}+1,'^<CHAPTER ID=\"?\d+\"?');
+	} # ELSE3
+      } # IF2
+      else { # ELSE2
+#	$i2 = &skip(\@TXT2,$i2,'^<CHAPTER ID=\"?\d+\"?');
+	$lineIndex{$lang} = &skip(\@TXT2,$lineIndex{$lang},'^<CHAPTER ID=\"?\d+\"?');
+      } # ELSE2
+      } # for each tgt lang
+      if ($skip_in_txt1) {
+#        $i1 = &skip(\@TXT1,$i1+1,'^<CHAPTER ID=\"?\d+\"?');
+        $lineIndex{$l1} = &skip(\@TXT1,$lineIndex{$l1}+1,'^<CHAPTER ID=\"?\d+\"?');
+      }
+    } # IF1
     
     # match speaker start
-    elsif ($TXT1[$i1] =~ /^<SPEAKER ID=\"?(\d+)\"?/) {
+#    elsif ($TXT1[$i1] =~ /^<SPEAKER ID=\"?(\d+)\"?/) {
+    elsif ($TXT1[$lineIndex{$l1}] =~ /^<SPEAKER ID=\"?(\d+)\"?/) {
       $s1 = $1;
+      my $skip_in_txt1 = 0;
+      for my $lang (@TGT_LANGS) { # for each tgt lang
+        my @TXT2 = @{$TXT2_HASH{$lang}};
+
       #print "SPEAKER $1\n";
-      if ($TXT2[$i2] =~ /^<SPEAKER ID=\"?(\d+)\"?/) {
+      if ($TXT2[$lineIndex{$lang}] =~ /^<SPEAKER ID=\"?(\d+)\"?/) {
 	my $s2 = $1;
 	if ($s1 == $s2) {
-	  print OUT1 $TXT1[$i1++];
-	  print $fr_out $TXT2[$i2++];
+	  print OUT1 $TXT1[$lineIndex{$l1}++];
+	  print $fr_out $TXT2[$lineIndex{$lang}++];
 	}
 	elsif ($s1 < $s2) {
-	  $i1 = &skip(\@TXT1,$i1+1,'^<SPEAKER ID=\"?\d+\"?');
+          $skip_in_txt1 = 1;
+#	  $lineIndex{$l1} = &skip(\@TXT1,$lineIndex{$l1}+1,'^<SPEAKER ID=\"?\d+\"?');
 	}
 	else {
-	  $i2 = &skip(\@TXT2,$i2+1,'^<SPEAKER ID=\"?\d+\"?');
+	  $lineIndex{$lang} = &skip(\@TXT2,$lineIndex{$lang}+1,'^<SPEAKER ID=\"?\d+\"?');
 	}
       }
       else {
-	$i2 = &skip(\@TXT2,$i2,'^<SPEAKER ID=\"?\d+\"?');
+	$lineIndex{$lang} = &skip(\@TXT2,$lineIndex{$lang},'^<SPEAKER ID=\"?\d+\"?');
+      }
+      }
+      if ($skip_in_txt1) {
+	  $lineIndex{$l1} = &skip(\@TXT1,$lineIndex{$l1}+1,'^<SPEAKER ID=\"?\d+\"?');
       }
     }  
     else {
-      #print "processing... $i1,$i2\n";
-      my @P1 = &extract_paragraph(\@TXT1,\$i1);
-      my @P2 = &extract_paragraph(\@TXT2,\$i2);
+      #print "processing... $lineIndex{$l1},$lineIndex{$lang}\n";
+      my @TXT2 = @{$TXT2_HASH{$TGT_LANGS[0]}};
+      my @P1 = &extract_paragraph(\@TXT1,\$lineIndex{$l1});
+      my @P2 = &extract_paragraph(\@TXT2,\$lineIndex{$TGT_LANGS[0]});
       if (scalar(@P1) != scalar(@P2)) {
 	print "$dayfile (speaker $s1) different number of paragraphs ".scalar(@P1)." != ".scalar(@P2)."\n";
       }
