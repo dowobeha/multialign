@@ -2,10 +2,15 @@
 
 #include <string>
 #include <iostream>
+#include <vector>
 #include <sys/stat.h>
 
+#include "pstream.h"
 
-void ensureDirectoryExists(std::string dir) {
+using std::string;
+using std::vector;
+
+void ensureDirectoryExists(string dir) {
   struct stat buffer;
 
   bool exists = (stat(dir.c_str(), &buffer) == 0);
@@ -19,7 +24,7 @@ void ensureDirectoryExists(std::string dir) {
   }
 }
 
-bool fileExists(std::string file) {
+bool fileExists(string file) {
   struct stat buffer;
 
   bool exists = (stat(file.c_str(), &buffer) == 0);
@@ -31,8 +36,29 @@ bool fileExists(std::string file) {
   }
 }
 
-void createDirectory(std::string dir) {
+void createDirectory(string dir) {
   system(("mkdir -p " + dir).c_str());
 }
 
+vector<string> process(string command) {
+  vector<string> results; {
+    redi::ipstream stream(command);
+    for (string line; std::getline(stream, line); ) { 
+     results.push_back(line);
+    }
+  }
+  return results;
+}
 
+
+/*
+vector<string> preprocess(string preprocessor, string dir, string lang, string dayfile) {
+  vector<string> txt; {
+    redi::ipstream stream(preprocessor + " -l " + l1 + " < " + dir+"/"+l1+"/"+dayfile);
+    for (string line; std::getline(stream, line); ) {
+      txt.push_back(line);
+    }
+  }
+  return txt;
+}
+*/
