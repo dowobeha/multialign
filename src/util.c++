@@ -19,6 +19,18 @@ void ensureDirectoryExists(std::string dir) {
   }
 }
 
+bool fileExists(std::string file) {
+  struct stat buffer;
+
+  bool exists = (stat(file.c_str(), &buffer) == 0);
+
+  if (exists) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
 void createDirectory(std::string dir) {
   system(("mkdir -p " + dir).c_str());
 }
