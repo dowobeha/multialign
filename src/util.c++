@@ -7,6 +7,8 @@
 
 #include "pstream.h"
 
+#include "utf8.h"
+
 using std::string;
 using std::vector;
 
@@ -62,3 +64,42 @@ vector<string> preprocess(string preprocessor, string dir, string lang, string d
   return txt;
 }
 */
+
+
+unsigned int utf8_codepoints(string& string) {
+
+  auto begin = string.begin();
+  auto end = string.end();
+  auto d = utf8::distance(begin, end);
+
+  return d;
+}
+
+unsigned int nonwhitespace_utf8_codepoints(string& string) {
+
+  unsigned int count = 0;
+
+  auto begin = string.begin();
+  auto end = string.end();
+
+  for (auto current=begin; current != end ; ) {
+   
+    auto previous = current;
+    utf8::next(current,end);
+    
+    if (current - previous > 1) {
+      count += 1;
+    } else {
+      auto c = *current;
+      if (c != ' '  &&
+	  c != '\r' &&
+	  c != '\n' &&
+	  c != '\t') {
+	count += 1;
+      }
+    }
+    
+  }
+
+  return count;
+}

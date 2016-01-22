@@ -3,6 +3,8 @@
 #include <vector>
 #include <fstream>
 #include <regex>
+#include <cmath>
+#include <utility>
 
 #include "util.h"
 
@@ -11,6 +13,7 @@ using std::vector;
 using std::regex;
 using std::ofstream;
 using std::smatch;
+using std::pair;
 
 unsigned int skip(string dayfile, vector<string>& txt, unsigned int i, regex pattern, string pattern_string) {
   
@@ -30,16 +33,175 @@ vector<vector<string>> extract_paragraphs(vector<string>& txt, size_t & i, regex
   for (auto n=txt.size(); i<n && !std::regex_match(txt[i], speaker) && !std::regex_match(txt[i], chapter); i+=1) {
 
     if (std::regex_match(txt[i], paragraph) || paragraphs.empty()) {
-      //      std::cerr << "New paragraph " << paragraphs.size() << ": "  << txt[i] << std::endl;
       paragraphs.push_back(vector<string>{ txt[i] });
     } else {
-      //      std::cerr << "Add to existing paragraph " << paragraphs.size() << ": "  << txt[i] << std::endl;
       paragraphs.back().push_back(txt[i]);
     }
 
   }
 
   return paragraphs;
+}
+
+double pnorm(double z) {
+  auto t = 1/(1 + 0.2316419 * z);
+  return 1 - 0.3989423 * exp(-z * z / 2) *
+    ((((1.330274429 * t 
+	- 1.821255978) * t 
+       + 1.781477937) * t 
+      - 0.356563782) * t
+     + 0.319381530) * t;
+}
+
+double match(unsigned int len1, unsigned int len2) {
+
+  double c = 1;
+  double s2 = 6.8;
+
+  if (len1==0 && len2==0) { return 0; }
+  double mean = (len1 + len2/c) / 2;
+  double z = (c * len1 - len2)/sqrt(s2 * mean);
+  if (z < 0) { z = -z; }
+  double pd = 2 * (1 - pnorm(z));
+  if (pd>0) { return -log(pd); }
+  return 25;
+}
+
+double prior(unsigned int a, unsigned int b) {
+  if (a==1 && b==1) return 0.89;
+  else if (a==1 && b==0) return 0.01/2;
+  else if (a==0 && b==1) return 0.01/2;
+  else if (a==2 && b==1) return 0.089/2;
+  else if (a==1 && b==2) return 0.089/2;
+  else return 0.0;
+}
+
+vector<unsigned int> prior_keys(unsigned int a) { 
+  if (a==0) return vector<unsigned int>{ 1 };
+  else if (a==1) return vector<unsigned int>{ 0, 1, 2 };
+  else if (a==2) return vector<unsigned int>{ 1 };
+  else return vector<unsigned int> {};
+}
+
+class Cost {
+
+private:
+
+  unsigned int ny;
+  unsigned int nx;
+  vector<double> values;
+
+public:
+
+  Cost(unsigned int n1, unsigned int n2) 
+    : ny(n2), nx(n1), values((n1+1)*(n2+1), 0.0) 
+  { 
+    
+    //    std::cerr << "values:\t" << values.size() << std::endl;
+
+}
+
+  double get(unsigned int x, unsigned int y) {
+
+    return values[x * (ny+1) + y];
+    ///return 0.0;
+  }
+
+  void set(unsigned int x, unsigned int y, double value) {
+    //    std::cerr << "cost.set(" << x << "," << y << "," << value << ") where values.size()==" << values.size() << "(nx==" << nx << ", ny==" << ny << ") and index into values is " << (x * (ny+1) + y) << std::endl;
+    values[x * (ny+1) + y] = value;
+  }
+
+};
+/*
+class Back {
+
+private:
+  unsigned int ny;
+  vector<int> path;
+
+public:
+  
+  Back(unsigned int n1, unsigned int n2): ny(n2), path((n1+1)*(n2+1), 0) {}
+
+  int get(unsigned int x, unsigned int y) {
+    return path[x * (ny+1) + y];
+  }
+
+  void set(unsigned int x, unsigned int y, int value) {
+    path[x * (ny+1) + y] = value;
+  }
+
+}
+*/
+void sentence_align(const vector<string>& p1, const vector<string>& p2) {
+
+
+
+  vector<unsigned int> keys{ 0, 1, 2};
+
+  vector<unsigned int> len1(p1.size()+1, 0);
+  vector<unsigned int> len2(p2.size()+1, 0);
+  
+  for (unsigned int n=p1.size(), i=0; i<n; i+=1) {
+    //    std::cerr << "p1[" << i<< "]:\t" << p1[i] << std::endl;
+    auto line = p1[i];
+    len1[i+1] = len1[i] + nonwhitespace_utf8_codepoints(line);
+  }
+  
+  for (unsigned int n=p2.size(), i=0; i<n; i+=1) {
+    //std::cerr << "p2[" << i<< "]:\t" << p2[i] << std::endl;
+    auto line = p2[i];
+    len2[i+1] = len2[i] + nonwhitespace_utf8_codepoints(line);
+  }
+
+
+
+  // dynamic programming
+  {
+
+    //  std::cerr << "Starting dynamic programming inside sentence_align" << std::endl;
+  Cost cost(p1.size(), p2.size());
+  //  vector<double> inner_cost(p2.size()+1, 0.0);
+  //  vector<vector<double> > cost(p1.size()+1, vector<double>(p2.size()+1, 0.0) );
+
+  //  vector<pair<int,int> > inner_back(p2.size()+1, std::pair<int,int>(0,0));
+  //  vector<vector<pair<int,int> > > back(p1.size()+1, vector<pair<int,int> >(p2.size()+1, std::pair<int,int>(0,0)));
+
+  for (unsigned int n1=p1.size(), i1=0; i1<n1; i1+=1) {   //std::cout << "here1" << std::endl;
+    for (unsigned int n2=p1.size(), i2=0; i2<n2; i2+=1) {   //std::cout << "here2" <<std::endl;
+	if (i1+i2==0) continue;
+	//std::cout << "i1==" << i1 << " i2==" << i2 << " p1.size()==" << p1.size() << " p2.size()==" << p2.size() <<std::endl;
+	cost.set(i1,i2,1e10);   
+	//std::cout << "here3 " << "i1==" << i1 << " i2==" << i2 << " p1.size()==" << p1.size() << " p2.size()==" << p2.size() <<std::endl;
+	for (auto d1 : keys) {   //std::cout << "here4" <<std::endl;
+	  if (d1 > i1) continue;
+	  for (auto d2 : prior_keys(d1)) {   //std::cout << "here5" <<std::endl;
+	    if (d2 > i2) continue;   //std::cout << "here6" <<std::endl;
+	    auto new_cost = cost.get(i1-d1, i2-d2) - log(prior(d1,d2)) + 
+	      match(len1[i1]-len1[i1-d1], len2[i2]-len2[i2-d2]);
+	    // std::cout << "here7 " << "i1==" << i1 << " i2==" << i2 << " p1.size()==" << p1.size() << " p2.size()==" << p2.size() <<std::endl;
+	    if (new_cost < cost.get(i1,i2)) {
+	      // std::cout << "here8" <<std::endl;
+	      cost.set(i1,i2,new_cost);
+	      // std::cout << "here9" <<std::endl;
+	      //back[i1][i2] = std::make_pair(i1-d1, i2-d2);
+	    }
+	  }
+	}
+      }
+  }
+  //  std::cerr << "Done with dynamic programming inside sentence_align\tp1.size()==" << p1.size() << " p2.size()==" << p2.size() << std::endl;
+  }
+  //  std::cerr << "Done with sentence_align" << std::endl;
+
+  /*  
+  for (auto s1 : p1) {
+    std::cerr << "utf codepoint count in \"" << s1 << "\" == " << utf8_codepoints(s1) << " vs s1.size()==" << s1.size() << " and nonwhitespace==" << nonwhitespace_utf8_codepoints(s1) << std::endl;
+  }
+  */
+
+
 }
 
 void align(string preprocessor, string outdir, string dir, string l1, string l2, string dayfile) {
@@ -104,16 +266,17 @@ void align(string preprocessor, string outdir, string dir, string l1, string l2,
     }
 
     else {
-      //      std::cerr << "About to extract paragraph, starting at i1==" << i1 << std::endl;
       auto p1 = extract_paragraphs(txt1, i1, chapter, speaker, paragraph);
-      //      std::cerr << "Extracted paragraph, now at i1==" << i1 << std::endl;
-      //      std::cerr << "About to extract paragraph, starting at i2==" << i2 << std::endl;
       auto p2 = extract_paragraphs(txt2, i2, chapter, speaker, paragraph);
-      //      std::cerr << "Extracted paragraph, now at i2==" << i2 << std::endl;
+
       if (p1.size() != p2.size()) {
 	std::cerr << dayfile << " (speaker " << s1 << ") different number of paragraphs " << p1.size() << " != " << p2.size() << std::endl;
       } else {
-
+	for (unsigned long n=p1.size(), p=0; p<n; p+=1) {
+	  //	  std::cerr << "Aligning paragraphs " << p << " of " << n << std::endl;
+	  sentence_align(p1[p], p2[p]);
+	  //std::cerr << "Aligned paragraphs " << p << " of " << n << std::endl;
+	}
       }
     }
 
