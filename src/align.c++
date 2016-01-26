@@ -356,13 +356,14 @@ MyIterator from(numbers);
   std::cout << '\n';
   */
 
-  for (int x : DEF3()) {
-    std::cout << x << ' ';
+  for (Coordinate x : DEF3{2,3,4}) {
+    std::cout << x << '\n';
   }
   std::cout << std::endl;
 
   return 0;
 }
+/*
 
 int main4( int argc, char *argv[]) {
 
@@ -401,21 +402,6 @@ int main3 (int argc, char *argv[]) {
 
   createDirectory(outdir + "/" + l1+"-"+l2 + "/" + l1);
   createDirectory(outdir + "/" + l1+"-"+l2 + "/" + l2);
-  /*
-  {
-    redi::ipstream ls("ls " + dir + "/" + l1);
-    string dayfile;
-    while (ls >> dayfile) {
-      
-      if (fileExists(dir + "/" + l2 + "/" + dayfile) ) { 
-	align(preprocessor, outdir, dir, l1, l2, dayfile);
-      } else {
-	std::cerr << dayfile << " only for " << l1 << ", not for " << l2 << ", skipping" << std::endl;
-      }
-    }
-
-  } 
-  */
 
   for (auto dayfile : process("ls " + dir + "/" + l1)) {
 
@@ -431,17 +417,6 @@ int main3 (int argc, char *argv[]) {
 }
 
 int main2 (int argc, char *argv[]) {
-  /*
-  std::ifstream in("table.txt");
-
-  if (!in) std::cerr << "no file\n";
-
-  string line;
-  int lineno = 0;
-
-  std::regex header {R"(ˆ[\w ]+(\t[\w ]+)∗$)"};
-  std::regex row {R"(ˆ([\w ]+)(\t\d+)(\t\d+)(\t\d+)$)"};
-  */
 
   std::regex r1("S");
   printf("S works.\n");
@@ -454,3 +429,4 @@ int main2 (int argc, char *argv[]) {
   return 0;
 
 }
+*/
