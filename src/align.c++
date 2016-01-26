@@ -8,6 +8,8 @@
 
 #include "util.h"
 
+#include "coordinate.h++"
+
 using std::string;
 using std::vector;
 using std::regex;
@@ -83,17 +85,18 @@ vector<unsigned int> prior_keys(unsigned int a) {
   else return vector<unsigned int> {};
 }
 
-class Cost {
+template <class T>
+class Values {
 
 private:
 
   unsigned int ny;
   unsigned int nx;
-  vector<double> values;
+  vector<T> values;
 
 public:
 
-  Cost(unsigned int n1, unsigned int n2) 
+  Values(unsigned int n1, unsigned int n2) 
     : ny(n2), nx(n1), values((n1+1)*(n2+1), 0.0) 
   { 
     
@@ -101,14 +104,14 @@ public:
 
 }
 
-  double get(unsigned int x, unsigned int y) {
+  T get(unsigned int x, unsigned int y) {
 
     return values[x * (ny+1) + y];
     ///return 0.0;
   }
 
-  void set(unsigned int x, unsigned int y, double value) {
-    //    std::cerr << "cost.set(" << x << "," << y << "," << value << ") where values.size()==" << values.size() << "(nx==" << nx << ", ny==" << ny << ") and index into values is " << (x * (ny+1) + y) << std::endl;
+  void set(unsigned int x, unsigned int y, T value) {
+    //    std::cerr << "Values.set(" << x << "," << y << "," << value << ") where values.size()==" << values.size() << "(nx==" << nx << ", ny==" << ny << ") and index into values is " << (x * (ny+1) + y) << std::endl;
     values[x * (ny+1) + y] = value;
   }
 
@@ -156,12 +159,14 @@ void sentence_align(const vector<string>& p1, const vector<string>& p2) {
   }
 
 
+  Values<int> pathX(p1.size(), p2.size());
+  Values<int> pathY(p1.size(), p2.size());
 
   // dynamic programming
   {
 
     //  std::cerr << "Starting dynamic programming inside sentence_align" << std::endl;
-  Cost cost(p1.size(), p2.size());
+    Values<double> cost(p1.size(), p2.size());
   //  vector<double> inner_cost(p2.size()+1, 0.0);
   //  vector<vector<double> > cost(p1.size()+1, vector<double>(p2.size()+1, 0.0) );
 
@@ -186,6 +191,8 @@ void sentence_align(const vector<string>& p1, const vector<string>& p2) {
 	      cost.set(i1,i2,new_cost);
 	      // std::cout << "here9" <<std::endl;
 	      //back[i1][i2] = std::make_pair(i1-d1, i2-d2);
+	      pathX.set(i1,i2,i1-d1);
+	      pathY.set(i1,i2,i2-d2);
 	    }
 	  }
 	}
@@ -200,6 +207,52 @@ void sentence_align(const vector<string>& p1, const vector<string>& p2) {
     std::cerr << "utf codepoint count in \"" << s1 << "\" == " << utf8_codepoints(s1) << " vs s1.size()==" << s1.size() << " and nonwhitespace==" << nonwhitespace_utf8_codepoints(s1) << std::endl;
   }
   */
+
+  // back tracking
+  {    
+    Values<int> nextX(p1.size(), p2.size());
+    Values<int> nextY(p1.size(), p2.size());
+    
+    auto i1 = p1.size();
+    auto i2 = p2.size();
+
+    while (i1>0 || i2>0) {
+      nextX.set(pathX.get(i1,i2), pathY.get(i1,i2), i1);
+      nextY.set(pathX.get(i1,i2), pathY.get(i1,i2), i2);
+
+      auto new_i1 = pathX.get(i1,i2);
+      auto new_i2 = pathY.get(i1,i2);
+
+      i1 = new_i1;
+      i2 = new_i2;
+    }
+    
+    while (i1<p1.size() || i2<p2.size()) {
+
+      std::cout << "P1:\t";
+      for (auto i=i1; i<nextX.get(i1,i2); i++) {
+	if (i != i1) std::cout << " ";
+	std::cout << p1[i];
+      }
+      std::cout << std::endl;
+
+      std::cout << "P2:\t";
+      for (auto i=i2; i<nextY.get(i1,i2); i++) {
+	std::cerr << "i==" << i << " p2.size()==" << p2.size() << std::endl;
+	if (i != i2) std::cout << " ";
+	std::cout << p2[i];
+      }
+      std::cout << std::endl;
+
+      auto new_i1 = nextX.get(i1,i2);
+      auto new_i2 = nextY.get(i1,i2);
+
+      i1 = new_i1;
+      i2 = new_i2;
+
+    }
+
+  }
 
 
 }
@@ -288,7 +341,48 @@ void align(string preprocessor, string outdir, string dir, string l1, string l2,
 
 }
 
-int main (int argc, char *argv[]) {
+
+int main () {
+  
+  int numbers[5]={10,20,30,40,50};
+  
+  int *n = &numbers[0];
+
+  /*
+MyIterator from(numbers);
+  MyIterator until(numbers+5);
+  for (MyIterator it=from; it!=until; it++)
+    std::cout << *it << ' ';
+  std::cout << '\n';
+  */
+
+  for (int x : DEF3()) {
+    std::cout << x << ' ';
+  }
+  std::cout << std::endl;
+
+  return 0;
+}
+
+int main4( int argc, char *argv[]) {
+
+  //Coordinate zero(vector<unsigned int>{4, 3});
+  Coordinate zero {4, 3};
+
+  Coordinate final = zero.final();
+
+  if (zero < final) {
+    std::cout << (zero<final) << " " << (zero==final) << std::endl;
+  } else {
+    std::cout << "bad" << std::endl;
+  }
+
+
+  
+
+}
+
+int main3 (int argc, char *argv[]) {
 
   string dir("txt");
   string outdir("aligned_cxx");
