@@ -1,11 +1,21 @@
 cmake_minimum_required (VERSION 3.0.2)
 project (align)
+
+include(CheckCXXCompilerFlag)
+CHECK_CXX_COMPILER_FLAG("-std=c++14" COMPILER_SUPPORTS_CXX14)
+if(COMPILER_SUPPORTS_CXX14)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
+else()
+        message(FATAL_ERROR "The compiler ${CMAKE_CXX_COMPILER} has no C++14 support. Please use a different C++ compiler.")
+endif()
+
+
 add_executable(align align.c++ util.c++)
 #set_property(TARGET align PROPERTY CXX_STANDARD 11)
 #set_property(TARGET align PROPERTY CXX_STANDARD_REQUIRED ON)
 #set(CMAKE_CXX_STANDARD 14)
 #set(CMAKE_CXX_STANDARD_REQUIRED on)
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-target_compile_features(align PRIVATE cxx_auto_type)
-target_compile_features(align PRIVATE cxx_raw_string_literals)
+#target_compile_features(align PRIVATE cxx_auto_type)
+#target_compile_features(align PRIVATE cxx_raw_string_literals)
 set(CMAKE_BUILD_TYPE Debug)
