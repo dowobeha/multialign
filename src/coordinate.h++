@@ -2,12 +2,11 @@
 #include <algorithm>
 #include <climits>
 
-
 class Coordinate {
 
 private:
   
-  //  const std::vector<unsigned int> dimensional_maximum;
+  const std::vector<unsigned int> dimensional_maximum;
 
   const std::vector<unsigned int> value;
 
@@ -15,39 +14,18 @@ public:
 
   Coordinate() = delete;
 
-  Coordinate(const std::vector<unsigned int> v) : value(v) {
-    // This space intentionally left blank
-  }
 
-  bool operator <(const Coordinate& that) {
-    return std::lexicographical_compare(value.begin(), value.end(), 
-                                        that.value.begin(),  that.value.end());
-  }
+  Coordinate(const std::vector<unsigned int> maxima, const std::vector<unsigned int> v) : dimensional_maximum(maxima), value(v) {}
 
-  bool operator ==(const Coordinate& that) {
-    return std::equal(value.begin(), value.end(), 
-                      that.value.begin(), that.value.end());
-  }
+  bool hasPredecessor(Coordinate& c);
+
+  std::vector<Coordinate> possiblePredecessors();
+
+  bool operator ==(const Coordinate& that);
 
   friend std::ostream& operator<<(std::ostream& os, const Coordinate& c);
 
 };
-
- std::ostream& operator<<(std::ostream& os, const Coordinate& c)
- {
-
-   unsigned int size = c.value.size();
-   unsigned int lastIndex = size - 1;
-
-   os << '(';
-   for (unsigned int index=0; index<lastIndex; index+=1) {
-     os << c.value[index] << ',';
-   }
-   os << c.value[lastIndex] << ')';
-
-   return os;
- }
-
 
 class MyIterator3 : public std::iterator<std::input_iterator_tag, Coordinate>
 {
@@ -83,14 +61,14 @@ public:
   MyIterator3(std::vector<unsigned int> maxima, std::vector<unsigned int> v) : dimensional_maximum(maxima), value(v) {}
   MyIterator3(const MyIterator3& mit) : dimensional_maximum(mit.dimensional_maximum), value(mit.value) {}
   MyIterator3& operator++() {nextValue();return *this;}
-  MyIterator3 operator++(int) {MyIterator3 tmp(*this); operator++(); return tmp;}
+
   bool operator==(const MyIterator3& rhs) {
     return std::equal(value.begin(), value.end(), 
                       rhs.value.begin(), rhs.value.end());
 
   }
   bool operator!=(const MyIterator3& rhs) {return !(*this==rhs);}
-  Coordinate operator*() {return Coordinate(value);}
+  Coordinate operator*() {return Coordinate(dimensional_maximum, value);}
 };
 
 
@@ -102,6 +80,7 @@ class DEF3 {
 public:
 
   DEF3(std::initializer_list<unsigned int> maxima) : dimensional_maximum(maxima) {}
+  DEF3(std::vector<unsigned int> maxima) : dimensional_maximum(maxima) {}
 
   MyIterator3 begin() {
     return MyIterator3(dimensional_maximum, std::vector<unsigned int>(dimensional_maximum.size(), 0));
@@ -114,92 +93,54 @@ public:
 };
 
 
+bool Coordinate::hasPredecessor(Coordinate& c) {
 
-class MyIterator2 : public std::iterator<std::input_iterator_tag, int>
-{
-  int p;
-public:
-  MyIterator2(int x) :p(x) {}
-  MyIterator2(const MyIterator2& mit) : p(mit.p) {}
-  MyIterator2& operator++() {++p;return *this;}
-  MyIterator2 operator++(int) {MyIterator2 tmp(*this); operator++(); return tmp;}
-  bool operator==(const MyIterator2& rhs) {return p==rhs.p;}
-  bool operator!=(const MyIterator2& rhs) {return p!=rhs.p;}
-  int& operator*() {return p;}
-};
+    for (unsigned int dimension=0, num_dimensions=value.size(); dimension<num_dimensions; dimension+=1) {
+      if (c.value[dimension] > value[dimension]) {
+	return false;
+      } else if (c.value[dimension] + 2 < value[dimension]) {
+	return false;
+      }
+    }
 
+    if (*this == c) {
+      return false;
+    } else {
+      return true;
+    }
 
-class DEF2 {
+  } 
 
+std::vector<Coordinate> Coordinate::possiblePredecessors() {
 
-public:
+    std::vector<Coordinate> results;
 
-  MyIterator2 begin() {
-    return MyIterator2(0);
+    for (Coordinate c : DEF3{dimensional_maximum}) {
+      if (this->hasPredecessor(c)) {
+	results.push_back(c);
+      }
+    }
+
+    return results;
   }
 
-  MyIterator2 end() {
-    return MyIterator2(5);
+bool Coordinate::operator ==(const Coordinate& that) {
+    return std::equal(value.begin(), value.end(), 
+                      that.value.begin(), that.value.end());
   }
 
-};
+ std::ostream& operator<<(std::ostream& os, const Coordinate& c)
+ {
 
+   unsigned int size = c.value.size();
+   unsigned int lastIndex = size - 1;
 
+   os << '(';
+   for (unsigned int index=0; index<lastIndex; index+=1) {
+     os << c.value[index] << ',';
+   }
+   os << c.value[lastIndex] << ')';
 
-class MyIterator : public std::iterator<std::input_iterator_tag, int>
-{
-  int* p;
-public:
-  MyIterator(int* x) :p(x) {}
-  MyIterator(const MyIterator& mit) : p(mit.p) {}
-  MyIterator& operator++() {++p;return *this;}
-  MyIterator operator++(int) {MyIterator tmp(*this); operator++(); return tmp;}
-  bool operator==(const MyIterator& rhs) {return p==rhs.p;}
-  bool operator!=(const MyIterator& rhs) {return p!=rhs.p;}
-  int& operator*() {return *p;}
-};
-
-
-class DEF {
-
-  int b = 0;
-
-  int e = 10;
-
-  int *numbers;
-
-public:
-
-  DEF(int *n) : numbers(n) {
-
-  }
-
-  MyIterator begin() {
-    return MyIterator(numbers);
-  }
-
-  MyIterator end() {
-    return MyIterator(numbers + 5);
-  }
-
-};
-
-
-
-
-class ABC {
-
-private:
-
-  const std::vector<unsigned int> dimensional_maximum;
-
-public:
-
-  ABC(std::initializer_list<unsigned int> maxima) : dimensional_maximum(maxima) {
-    // This space intentionally left blank
-  }
-
-  
-
-};
+   return os;
+ }
 

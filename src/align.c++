@@ -357,7 +357,10 @@ MyIterator from(numbers);
   */
 
   for (Coordinate x : DEF3{2,3,4}) {
-    std::cout << x << '\n';
+    std::cout << x << std::endl;
+    for (Coordinate y : x.possiblePredecessors()) {
+      std::cout << "\t" << y << std::endl;
+    }
   }
   std::cout << std::endl;
 
