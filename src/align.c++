@@ -9,6 +9,7 @@
 #include "util.h"
 
 #include "coordinate.h++"
+#include "cost.h++"
 
 using std::string;
 using std::vector;
@@ -344,9 +345,15 @@ void align(string preprocessor, string outdir, string dir, string l1, string l2,
 
 int main () {
   
-  int numbers[5]={10,20,30,40,50};
+  //  int numbers[5]={10,20,30,40,50};
   
-  int *n = &numbers[0];
+  //  int *n = &numbers[0];
+
+  std::vector< std::vector<unsigned int> > lengths;
+  lengths.push_back(std::vector<unsigned int>{0,10});
+  lengths.push_back(std::vector<unsigned int>{0,6,4});
+
+  Costs costs(lengths);
 
   /*
 MyIterator from(numbers);
@@ -356,10 +363,17 @@ MyIterator from(numbers);
   std::cout << '\n';
   */
 
-  for (Coordinate x : DEF3{2,3,4}) {
-    std::cout << x << std::endl;
-    for (Coordinate y : x.possiblePredecessors()) {
-      std::cout << "\t" << y << std::endl;
+  Coordinates coordinates{1,2};
+
+  for (Coordinate x : coordinates) {
+    //    std::cout << x << std::endl;
+
+    //    auto predecessors = x.possiblePredecessors();
+
+    //    for (Coordinate y : predecessors) {
+    for (Coordinate y : coordinates) {
+      //      std::cout << "\t" << y << std::endl;
+      costs.calculate(x, y);
     }
   }
   std::cout << std::endl;
