@@ -8,15 +8,19 @@ class Coordinate {
 
 private:
   
-  const std::vector<unsigned int> dimensional_maximum;
+  std::vector<unsigned int> dimensional_maximum;
 
-  const std::vector<unsigned int> value;
+  std::vector<unsigned int> value;
 
 public:
-
+  
   Coordinate() = default;
-
-
+  Coordinate(const Coordinate& c) = default;
+  Coordinate(Coordinate&& c) = default;
+  Coordinate& operator=(const Coordinate& c) = default;
+  Coordinate& operator=(Coordinate&& c) = default;
+  ~Coordinate() = default;
+  
   Coordinate(const std::vector<unsigned int> maxima, const std::vector<unsigned int> v) : dimensional_maximum(maxima), value(v) {}
 
   bool hasPredecessor(Coordinate& c);

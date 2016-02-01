@@ -13,13 +13,20 @@ private:
 
   Coordinate previous;
 
-  double cost;
-
 public:
 
-  Cost(Coordinate previous, double cost) : previous{previous}, cost{cost} {}
-  //  Cost(const Cost& c) = default;
+  double cost;
+
   Cost() = default;
+  Cost(const Cost& c) = default;
+  Cost(Cost&& c) = default;
+  Cost& operator=(const Cost& c) = default;
+  Cost& operator=(Cost&& c) = default;
+  ~Cost() = default;
+
+  Cost(Coordinate previous, double cost) : previous{previous}, cost{cost} {}
+
+
 };
 
 
@@ -79,6 +86,8 @@ void Costs::calculate(Coordinate current, Coordinate previous) {
 
   //  std::cerr << std::endl << std::endl << "Calculate " << current << " from " << previous << std::endl;
 
+  double cost = 0.0;
+
   for (unsigned int dimension1=0, numDimensions=current.dimensions(); dimension1<numDimensions; dimension1 += 1) {
 
     auto current_dim1_value = current.valueAt(dimension1);
@@ -121,45 +130,46 @@ void Costs::calculate(Coordinate current, Coordinate previous) {
 
 	// 1-1 alignment (substitution)
 	//	std::cerr << "substitution" << std::endl;
-	distance.two_side_distance(x[i], y[j], 0, 0);
+	cost += distance.two_side_distance(x[i], y[j], 0, 0);
 
       } else if (prev_dim1_value + 1 == current_dim1_value &&
 		 prev_dim2_value + 0 == current_dim2_value) {
 
 	// 1-0 alignment (deletion)
 	// std::cerr << "deletion" << std::endl;
-	distance.two_side_distance(x[i], 0, 0, 0);
+	cost += distance.two_side_distance(x[i], 0, 0, 0);
 
       } else if (prev_dim1_value + 0 == current_dim1_value &&
 		 prev_dim2_value + 1 == current_dim2_value) {
 
 	// 0-1 alignment (insertion)
 	// std::cerr << "insertion" << std::endl;
-	distance.two_side_distance(0, y[j], 0, 0);
+	cost += distance.two_side_distance(0, y[j], 0, 0);
 
       } else if (prev_dim1_value + 2 == current_dim1_value &&
 		 prev_dim2_value + 1 == current_dim2_value) {
 
 	// 2-1 alignment (contraction)
 	// std::cerr << "contraction" << std::endl;
-	distance.two_side_distance(x[i-1], y[j], x[i], 0);
+	cost += distance.two_side_distance(x[i-1], y[j], x[i], 0);
 
       } else if (prev_dim1_value + 1 == current_dim1_value &&
 		 prev_dim2_value + 2 == current_dim2_value) {
 
 	// 1-2 alignment (expansion)
 	// std::cerr << "expansion" << std::endl;
-	distance.two_side_distance(x[i], y[j-1], 0, y[j]);
+	cost += distance.two_side_distance(x[i], y[j-1], 0, y[j]);
 
       } else if (prev_dim1_value + 2 == current_dim1_value &&
 		 prev_dim2_value + 2 == current_dim2_value) {
 
 	// 2-2 alignment (melding)
 	// std::cerr << "melding" << std::endl;
-	distance.two_side_distance(x[i-1], y[j-1], x[i], y[j]);
+	cost += distance.two_side_distance(x[i-1], y[j-1], x[i], y[j]);
 
       } else {
 
+	return;
 	// Other alignment, which we will ignore
 	//		std::cerr << "Skipping:\tcurrent=" << current << "\tprevious=" << previous << std::endl;
       }
@@ -167,6 +177,15 @@ void Costs::calculate(Coordinate current, Coordinate previous) {
     }
 
   } 
+
+  std::map<Coordinate, Cost>::iterator search = costs.find(current);
+
+  if (search == costs.end() || cost < search->second.cost) {
+
+    costs[current] = Cost(previous, cost);
+    std::cerr << "New best cost " << cost << " from " << previous << " to " << current << std::endl;
+
+  }
   
 
 }
