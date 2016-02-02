@@ -8,13 +8,12 @@
 #include "Distance.h++"
 
 Cost Costs::get(Coordinate c) {
-    /*
-    auto x = costs.find(c);
-    auto y = x->second();
-
-    return y;
-    */
-  return costs[c];
+    
+  std::map<Coordinate, Cost>::iterator search = costs.find(c);
+  std::pair<Coordinate, Cost> result = *search;
+  
+  return result.second;
+ 
 }
 
 
@@ -140,7 +139,9 @@ void Costs::calculate(Coordinate current, Coordinate previous) {
 
   if (search == costs.end() || cost < search->second.cost) {
 
-    costs[current] = Cost(previous, cost);
+    costs.emplace(current, Cost(previous, cost));
+
+    //    costs[current] = Cost(previous, cost);
     std::cerr << "New best cost " << cost << " from " << previous << " to " << current << std::endl;
 
   }

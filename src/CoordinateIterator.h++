@@ -18,7 +18,7 @@ private:
 public:
 
   CoordinateIterator(std::vector<unsigned int> maxima, std::vector<unsigned int> v);
-  CoordinateIterator(const CoordinateIterator& mit);
+  //  CoordinateIterator(const CoordinateIterator& mit);
 
   CoordinateIterator& operator++();
 

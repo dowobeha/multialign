@@ -31,12 +31,12 @@ CoordinateIterator::CoordinateIterator(std::vector<unsigned int> maxima,
 								      value(v) {
   // This space intentionally left blank
 }
-
+/*
 CoordinateIterator::CoordinateIterator(const CoordinateIterator& mit) : dimensional_maximum(mit.dimensional_maximum), 
 									value(mit.value) {
   // This space intentionally left blank
 }
-
+*/
 CoordinateIterator& CoordinateIterator::operator++() {
   nextValue();
   return *this;

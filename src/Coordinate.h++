@@ -11,14 +11,14 @@ private:
   std::vector<unsigned int> value;
 
 public:
-  
+  /*  
   Coordinate() = default;
   Coordinate(const Coordinate& c) = default;
   Coordinate(Coordinate&& c) = default;
   Coordinate& operator=(const Coordinate& c) = default;
   Coordinate& operator=(Coordinate&& c) = default;
   ~Coordinate() = default;
-  
+  */
   Coordinate(const std::vector<unsigned int> maxima, const std::vector<unsigned int> v);
 
   bool hasPredecessor(Coordinate& c);
