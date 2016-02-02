@@ -12,11 +12,11 @@ private:
 
   std::map<Coordinate, Cost> costs;
 
-  std::vector< std::vector<unsigned int> > lengths;
-
   Distance distance;
 
 public:
+
+  const std::vector< std::vector<unsigned int> > lengths;
 
   Costs(std::vector< std::vector<unsigned int> > lengths) : lengths(lengths) {}
 

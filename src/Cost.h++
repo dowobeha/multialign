@@ -10,7 +10,7 @@ private:
 
 public:
 
-  double cost;
+  const double cost;
   /*
   Cost() = default;
   Cost(const Cost& c) = default;

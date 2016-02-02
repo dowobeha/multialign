@@ -366,7 +366,8 @@ MyIterator from(numbers);
   std::cout << '\n';
   */
 
-  Coordinates coordinates{1,2};
+  //  Coordinates coordinates{1,2};
+  Coordinates coordinates(costs);
 
   for (Coordinate x : coordinates) {
     //    std::cout << x << std::endl;
@@ -374,7 +375,7 @@ MyIterator from(numbers);
     //    auto predecessors = x.possiblePredecessors();
 
     //    for (Coordinate y : predecessors) {
-    for (Coordinate y : coordinates) {
+    for (Coordinate y : x.possiblePredecessors()) {
       //      std::cout << "\t" << y << std::endl;
       costs.calculate(x, y);
     }
