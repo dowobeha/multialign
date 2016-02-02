@@ -10,7 +10,7 @@ else()
 endif()
 
 
-add_executable(align align.c++ util.c++ Coordinate.c++ CoordinateIterator.c++ Coordinates.c++)
+add_executable(align align.c++ util.c++ Coordinate.c++ CoordinateIterator.c++ Coordinates.c++ Costs.c++ Distance.c++)
 #set_property(TARGET align PROPERTY CXX_STANDARD 11)
 #set_property(TARGET align PROPERTY CXX_STANDARD_REQUIRED ON)
 #set(CMAKE_CXX_STANDARD 14)
