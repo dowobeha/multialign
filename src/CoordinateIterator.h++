@@ -2,6 +2,7 @@
 
 #include "Coordinate.h++"
 
+#include <iterator>
 #include <vector>
 
 class Coordinates;

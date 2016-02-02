@@ -5,7 +5,12 @@
 #include <vector>
 
 #include "Cost.h++"
+#include "Dimensions.h++"
 #include "Distance.h++"
+
+unsigned int Costs::dimensions() const {
+  return lengths.size();
+}
 
 Cost Costs::get(Coordinate c) const {
     
@@ -19,30 +24,35 @@ Cost Costs::get(Coordinate c) const {
 
 void Costs::calculate(Coordinate current, Coordinate previous) {
 
+  //  std::cerr << "In calculate..." << std::endl;
+
   if (! (previous < current)) {
     return;
   }
 
   double cost = 0.0;
 
-  for (unsigned int dimension1=0, numDimensions=current.dimensions(); dimension1<numDimensions; dimension1 += 1) {
+  for (std::pair<unsigned int, unsigned int> dimensions : Dimensions(dimensions())) {
+    
+    //std::cerr << "d1==" << dimensions.first << "\td2==" << dimensions.second << std::endl;
+    //  for (unsigned int dimension1=0, numDimensions=dimensions(); dimension1<numDimensions; dimension1 += 1) {
 
-    auto current_dim1_value = current.valueAt(dimension1);
-    auto prev_dim1_value = previous.valueAt(dimension1);
+    auto current_dim1_value = current.valueAt(dimensions.first);
+    auto prev_dim1_value = previous.valueAt(dimensions.first);
 
 
-    for (unsigned int dimension2=dimension1+1; dimension2<numDimensions; dimension2 += 1) {
+    //    for (unsigned int dimension2=dimension1+1; dimension2<numDimensions; dimension2 += 1) {
 
       //              std::cerr << "Dimension 1 = " << dimension1 << ", Dimension 2 = " << dimension2 << std::endl;
 
-      auto current_dim2_value = current.valueAt(dimension2);
-      auto prev_dim2_value = previous.valueAt(dimension2);
+      auto current_dim2_value = current.valueAt(dimensions.second);
+      auto prev_dim2_value = previous.valueAt(dimensions.second);
 
-      auto x = lengths[dimension1];
-      auto y = lengths[dimension2];
+      auto x = lengths[dimensions.first];
+      auto y = lengths[dimensions.second];
 
-      auto nx = x.size();
-      auto ny = y.size();
+      //      auto nx = x.size();
+      //      auto ny = y.size();
 
       auto i = current_dim1_value;
       auto j = current_dim2_value;
@@ -111,7 +121,7 @@ void Costs::calculate(Coordinate current, Coordinate previous) {
 	//		std::cerr << "Skipping:\tcurrent=" << current << "\tprevious=" << previous << std::endl;
       }
 
-    }
+      //    }
 
   } 
 

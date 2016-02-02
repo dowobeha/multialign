@@ -24,5 +24,7 @@ public:
 
   Cost get(Coordinate c) const;
 
+  unsigned int dimensions() const;
+
 };
 

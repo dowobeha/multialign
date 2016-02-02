@@ -1,5 +1,6 @@
 #include "Coordinate.h++"
 #include "Coordinates.h++"
+#include "Dimensions.h++"
 
 #include <algorithm>
 #include <ostream>
@@ -28,9 +29,14 @@ bool Coordinate::hasPredecessor(Coordinate& c) const {
   if (*this == c) return false;
 
   // Iterate over every pair of dimensions
-  for (unsigned int dimension1=0, num_dimensions=value.size(); dimension1<num_dimensions; dimension1 += 1) {
+  for (auto dimensions : Dimensions(value.size())) {
 
-    for (unsigned int dimension2=dimension1+1; dimension2<num_dimensions; dimension2 += 1) {
+      unsigned int dimension1 = dimensions.first;
+      unsigned int dimension2 = dimensions.second;
+
+      //  for (unsigned int dimension1=0, num_dimensions=value.size(); dimension1<num_dimensions; dimension1 += 1) {
+
+      //    for (unsigned int dimension2=dimension1+1; dimension2<num_dimensions; dimension2 += 1) {
 
       if (value[dimension1]==c.value[dimension1] &&
 	  value[dimension2]==c.value[dimension2]) {
@@ -117,7 +123,7 @@ bool Coordinate::hasPredecessor(Coordinate& c) const {
 
       }
 
-    }
+      //}
 
   }
 

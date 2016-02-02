@@ -13,6 +13,7 @@
 #include "Coordinates.h++"
 #include "Cost.h++"
 #include "Costs.h++"
+#include "Dimensions.h++"
 
 using std::string;
 using std::vector;
@@ -351,6 +352,12 @@ int main () {
   //  int numbers[5]={10,20,30,40,50};
   
   //  int *n = &numbers[0];
+
+  //for (auto d : Dimensions(2)) {
+    //std::cerr << "d1=" << d.first << "\td2=" << d.second << std::endl;
+    //}
+
+  //  exit(0);
 
   std::vector< std::vector<unsigned int> > lengths;
   lengths.push_back(std::vector<unsigned int>{0,10});
