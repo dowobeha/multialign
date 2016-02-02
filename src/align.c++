@@ -11,7 +11,7 @@
 #include "Coordinate.h++"
 #include "CoordinateIterator.h++"
 #include "Coordinates.h++"
-#include "cost.h++"
+#include "Cost.h++"
 
 using std::string;
 using std::vector;

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "coordinate.h++"
-#include "distance.h++"
+#include "Coordinate.h++"
+#include "Distance.h++"
 
 #include <map>
 #include <vector>
