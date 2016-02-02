@@ -8,7 +8,9 @@
 
 #include "util.h"
 
-#include "coordinate.h++"
+#include "Coordinate.h++"
+#include "CoordinateIterator.h++"
+#include "Coordinates.h++"
 #include "cost.h++"
 
 using std::string;
