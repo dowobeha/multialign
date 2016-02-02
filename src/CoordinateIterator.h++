@@ -1,13 +1,16 @@
 #pragma once
 
 #include "Coordinate.h++"
-#include "CoordinateIterator.h++"
 
 #include <vector>
+
+class Coordinates;
 
 class CoordinateIterator : public std::iterator<std::input_iterator_tag, Coordinate> {
 
 private:
+  
+  const Coordinates& coordinates;
 
   const std::vector<unsigned int> dimensional_maximum;
 
@@ -17,15 +20,14 @@ private:
 
 public:
 
-  CoordinateIterator(std::vector<unsigned int> maxima, std::vector<unsigned int> v);
-  //  CoordinateIterator(const CoordinateIterator& mit);
+  CoordinateIterator(const Coordinates& c, std::vector<unsigned int> v);
 
   CoordinateIterator& operator++();
 
-  bool operator==(const CoordinateIterator& rhs);
+  bool operator==(const CoordinateIterator& rhs) const;
 
-  bool operator!=(const CoordinateIterator& rhs);
+  bool operator!=(const CoordinateIterator& rhs) const;
 
-  Coordinate operator*();
+  Coordinate operator*() const;
 
 };

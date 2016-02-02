@@ -2,36 +2,33 @@
 
 #include <vector>
 
+// To prevent a circular header dependency, forward declare Coordinates
+class Coordinates;
+
+
 class Coordinate {
 
 private:
   
-  std::vector<unsigned int> dimensional_maximum;
+  const Coordinates& coordinates;
 
-  std::vector<unsigned int> value;
+  const std::vector<unsigned int> value;
 
 public:
-  /*  
-  Coordinate() = default;
-  Coordinate(const Coordinate& c) = default;
-  Coordinate(Coordinate&& c) = default;
-  Coordinate& operator=(const Coordinate& c) = default;
-  Coordinate& operator=(Coordinate&& c) = default;
-  ~Coordinate() = default;
-  */
-  Coordinate(const std::vector<unsigned int> maxima, const std::vector<unsigned int> v);
 
-  bool hasPredecessor(Coordinate& c);
+  Coordinate(const Coordinates& coordinates, const std::vector<unsigned int> v);
 
-  std::vector<Coordinate> possiblePredecessors();
+  bool hasPredecessor(Coordinate& c) const;
+
+  std::vector<Coordinate> possiblePredecessors() const;
 
   bool operator ==(const Coordinate& that) const;
 
   bool operator <(const Coordinate& that) const;
 
-  unsigned int dimensions();
+  unsigned int dimensions() const;
 
-  unsigned int valueAt(unsigned int dimension);
+  unsigned int valueAt(unsigned int dimension) const;
 
   friend std::ostream& operator<<(std::ostream& os, const Coordinate& c);
 

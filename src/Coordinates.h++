@@ -11,20 +11,17 @@ class Coordinates {
 
 private:
 
-  const std::vector<unsigned int> dimensional_maximum;
-
   static std::vector<unsigned int> calculateDimensionalMaxima(const std::vector< std::vector<unsigned int> >& lengths);
 
 
 public:
 
+  const std::vector<unsigned int> dimensional_maximum;
+
   Coordinates(Costs& costs);
 
-  //  Coordinates(std::initializer_list<unsigned int> maxima);
-  Coordinates(std::vector<unsigned int> maxima);
+  CoordinateIterator begin() const;
 
-  CoordinateIterator begin();
-
-  CoordinateIterator end();
+  CoordinateIterator end() const;
 
 };

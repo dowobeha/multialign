@@ -22,7 +22,7 @@ public:
 
   void calculate(Coordinate current, Coordinate previous);
 
-  Cost get(Coordinate c);
+  Cost get(Coordinate c) const;
 
 };
 

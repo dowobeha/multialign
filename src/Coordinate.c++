@@ -5,23 +5,23 @@
 #include <ostream>
 #include <vector>
 
-Coordinate::Coordinate(const std::vector<unsigned int> maxima, 
-		       const std::vector<unsigned int> v) : dimensional_maximum(maxima), 
+Coordinate::Coordinate(const Coordinates& coordinates,
+		       const std::vector<unsigned int> v) : coordinates(coordinates),
 							    value(v) {
   // This space intentionally left blank
 }
 
 
-unsigned int Coordinate::dimensions() {
+unsigned int Coordinate::dimensions() const {
   return value.size();
 }
 
-unsigned int Coordinate::valueAt(unsigned int dimension) {
+unsigned int Coordinate::valueAt(unsigned int dimension) const {
   return value[dimension];
 }
 
 
-bool Coordinate::hasPredecessor(Coordinate& c) {
+bool Coordinate::hasPredecessor(Coordinate& c) const {
 
   // If a coordinate is identical in all dimensions to this coordinate,
   //    then it couldn't be a predecessor of this coordinate
@@ -123,28 +123,13 @@ bool Coordinate::hasPredecessor(Coordinate& c) {
 
   return true;
 
-  /*
-    for (unsigned int dimension=0, num_dimensions=value.size(); dimension<num_dimensions; dimension+=1) {
-      if (c.value[dimension] > value[dimension]) {
-	return false;
-      } else if (c.value[dimension] + 2 < value[dimension]) {
-	return false;
-      }
-    }
-
-    if (*this == c) {
-      return false;
-    } else {
-      return true;
-    }
-  */
 } 
 
-std::vector<Coordinate> Coordinate::possiblePredecessors() {
+std::vector<Coordinate> Coordinate::possiblePredecessors() const {
 
     std::vector<Coordinate> results;
 
-    for (Coordinate c : Coordinates{dimensional_maximum}) {
+    for (Coordinate c : coordinates) {
       if (this->hasPredecessor(c)) {
 	results.push_back(c);
       }

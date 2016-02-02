@@ -7,9 +7,9 @@
 #include "Cost.h++"
 #include "Distance.h++"
 
-Cost Costs::get(Coordinate c) {
+Cost Costs::get(Coordinate c) const {
     
-  std::map<Coordinate, Cost>::iterator search = costs.find(c);
+  std::map<Coordinate, Cost>::const_iterator search = costs.find(c);
   std::pair<Coordinate, Cost> result = *search;
   
   return result.second;
@@ -20,28 +20,8 @@ Cost Costs::get(Coordinate c) {
 void Costs::calculate(Coordinate current, Coordinate previous) {
 
   if (! (previous < current)) {
-    //  std::cerr << "Invalid order " << current << " from " << previous << std::endl;
     return;
   }
-  /*
-  for (auto d=0; d<lengths.size(); d++) {
-    if (current.valueAt(d) >= lengths[d].size() + 1) {
-      std::cerr << "Invalid size " << current << " from " << previous << " because " << (current.valueAt(d)) << " >= " << (lengths[d].size()+1) << " for d=" <<d << std::endl;
-      return;
-    }
-  }
-  */
-  /*
-   for (auto d=0; d<lengths.size(); d++) {
-     std::cerr << "d=" << d << " (";
-     for (auto l : lengths[d]) {
-       std::cerr << l << ",";
-     }
-     std::cerr << ")" << std::endl;
-   }
-  */
-
-  //  std::cerr << std::endl << std::endl << "Calculate " << current << " from " << previous << std::endl;
 
   double cost = 0.0;
 
