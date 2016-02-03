@@ -3,7 +3,6 @@
 #include <map>
 #include <vector>
 
-#include "Alignment.h++"
 #include "Cost.h++"
 #include "Distance.h++"
 

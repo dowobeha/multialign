@@ -25,88 +25,61 @@ Cost Costs::get(Coordinate c) const {
 
 void Costs::calculate(Coordinate current, Coordinate previous) {
 
-  if (! (previous < current)) {
-    return;
-  }
-
   double cost = 0.0;
 
   for (std::pair<unsigned int, unsigned int> dimensions : Dimensions(dimensions())) {
     
-    auto current_dim1_value = current.valueAt(dimensions.first);
-    auto prev_dim1_value = previous.valueAt(dimensions.first);
-
-    
-    auto current_dim2_value = current.valueAt(dimensions.second);
-    auto prev_dim2_value = previous.valueAt(dimensions.second);
-    
     auto x = lengths[dimensions.first];
     auto y = lengths[dimensions.second];
     
-    auto i = current_dim1_value;
-    auto j = current_dim2_value;
-    
-    
-    Alignment::Type alignment = Alignment::determine(current_dim1_value, current_dim2_value,
-						     prev_dim1_value, prev_dim2_value);
+    auto i = current.valueAt(dimensions.first);
+    auto j = current.valueAt(dimensions.second);
+        
+    Alignment::Type alignment = 
+      Alignment::determine(current.valueAt(dimensions.first),  current.valueAt(dimensions.second),
+			   previous.valueAt(dimensions.first), previous.valueAt(dimensions.second));
 
     int penalty_value = distance.penalty(alignment);
     int match_value;
     std::string operation;
 
-    auto log = [&](int x1, int y1, int x2, int y2) {
-      fprintf(stderr, "%s\tdistance(x1=%d, y1=%d, x2=%d, y2=%d) = %d = match_value (%d) + penalty_value (%d)\n", operation.c_str(), x1, y1, x2, y2, (match_value+penalty_value), match_value, penalty_value);
+    // Define a local lambda function with reference access to all local variables
+    auto match = [&](int x1, int y1, int x2, int y2) {
+      match_value = distance.match(x1+x2, y1+y2);
+      fprintf(stderr, "%s\tdistance(x1=%d, y1=%d, x2=%d, y2=%d) = %d = match_value (%d) + penalty_value (%d)\n", operation.c_str(), x1, y1, x2, y2, (match_value+penalty_value), match_value, penalty_value);     
     };
 
     
     switch(alignment) {
       
     case Alignment::Type::Substitution: 
-      match_value = distance.match(x[i], y[j]);
       operation = "substitution";
-      log(x[i], y[j], 0, 0);
-      //      fprintf(stderr, "%s\tdistance(x1=%d, y1=%d, x2=%d, y2=%d) = %d = match_value (%d) + penalty_value (%d)\n", operation.c_str(), x[i], y[j], 0, 0, (match_value+penalty_value), match_value, penalty_value);
-      //      cost += distance.two_side_distance(x[i], y[j], 0, 0);
+      match(x[i], y[j], 0, 0);
       break;
       
     case Alignment::Type::Deletion:
-      match_value = distance.match(x[i], 0);
       operation = "deletion";
-      log(x[i], 0, 0, 0);
-      //      fprintf(stderr, "%s\tdistance(x1=%d, y1=%d, x2=%d, y2=%d) = %d = match_value (%d) + penalty_value (%d)\n", operation.c_str(), x[i], 0, 0, 0, (match_value+penalty_value), match_value, penalty_value);
-      //      cost += distance.two_side_distance(x[i], 0, 0, 0);
+      match(x[i], 0, 0, 0);
       break;
       
     case Alignment::Type::Insertion:
-      match_value = distance.match(0, y[j]);
       operation = "insertion";
-      log(0, y[j], 0, 0);
-      //      fprintf(stderr, "%s\tdistance(x1=%d, y1=%d, x2=%d, y2=%d) = %d = match_value (%d) + penalty_value (%d)\n", operation.c_str(), 0, y[j], 0, 0, (match_value+penalty_value), match_value, penalty_value);
-      //      cost += distance.two_side_distance(0, y[j], 0, 0);
+      match(0, y[j], 0, 0);
       break;
       
     case Alignment::Type::Contraction:
-      match_value = distance.match(x[i-1]+x[i], y[j]);
       operation = "contraction";
-      log(x[i-1], y[j], x[i], 0);
-      //      fprintf(stderr, "%s\tdistance(x1=%d, y1=%d, x2=%d, y2=%d) = %d = match_value (%d) + penalty_value (%d)\n", operation.c_str(), x[i-1], y[j], x[i], 0, (match_value+penalty_value), match_value, penalty_value);
-      //      cost += distance.two_side_distance(x[i-1], y[j], x[i], 0);
+      match(x[i-1], y[j], x[i], 0);
       break;
       
     case Alignment::Type::Expansion:
-      match_value = distance.match(x[i], y[j-1]+y[j]);
       operation   = "expansion";
-      log(x[i], y[j-1], 0, y[j]);
-      //      fprintf(stderr, "%s\tdistance(x1=%d, y1=%d, x2=%d, y2=%d) = %d = match_value (%d) + penalty_value (%d)\n", operation.c_str(), x[i], y[j-1], 0, y[j], (match_value+penalty_value), match_value, penalty_value);
-      //      cost += distance.two_side_distance(x[i], y[j-1], 0, y[j]);
+      match(x[i], y[j-1], 0, y[j]);
       break;
             
     case Alignment::Type::Melding:
-      match_value = distance.match(x[i-1]+x[i], y[j-1]+y[j]);
       operation   = "melding";
-      log(x[i-1], y[j-1], x[i], y[j]);
-      //      fprintf(stderr, "%s\tdistance(x1=%d, y1=%d, x2=%d, y2=%d) = %d = match_value (%d) + penalty_value (%d)\n", operation.c_str(), x[i-1], y[j-1], x[i], y[j], (match_value+penalty_value), match_value, penalty_value);
-      //      cost += distance.two_side_distance(x[i-1], y[j-1], x[i], y[j]);
+      match(x[i-1], y[j-1], x[i], y[j]);
       break;
       
     case Alignment::Type::Invalid:
@@ -122,9 +95,9 @@ void Costs::calculate(Coordinate current, Coordinate previous) {
 
   if (search == costs.end() || cost < search->second.cost) {
 
+    // Associate the new cost with the current point
     costs.emplace(current, Cost(previous, cost));
 
-    //    costs[current] = Cost(previous, cost);
     std::cerr << "New best cost " << cost << " from " << previous << " to " << current << std::endl;
 
   }
