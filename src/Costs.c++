@@ -104,3 +104,17 @@ void Costs::calculate(Coordinate current, Coordinate previous) {
   
 
 }
+
+void Costs::backtrace() const {
+  std::cerr << "Backtrace..." << std::endl;
+
+
+  for (const Coordinate &c = costs.rbegin()->first; costs.find(c) != costs.end(); c=get(c).previous) {
+    Cost cost = get(c);
+    std::cerr << cost.previous << " -> " << c << " (" << cost.cost << ")" << std::endl;    
+  }
+
+
+
+
+}

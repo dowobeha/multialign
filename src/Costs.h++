@@ -26,5 +26,7 @@ public:
 
   unsigned int dimensions() const;
 
+  void backtrace() const;
+
 };
 

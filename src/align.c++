@@ -389,6 +389,8 @@ MyIterator from(numbers);
   }
   std::cout << std::endl;
 
+  costs.backtrace();
+
   return 0;
 }
 /*

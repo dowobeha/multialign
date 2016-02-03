@@ -31,12 +31,9 @@ bool Coordinate::hasPredecessor(Coordinate& c) const {
   // Iterate over every pair of dimensions
   for (auto dimensions : Dimensions(value.size())) {
 
-      unsigned int dimension1 = dimensions.first;
-      unsigned int dimension2 = dimensions.second;
+    unsigned int dimension1 = dimensions.first;
+    unsigned int dimension2 = dimensions.second;
 
-      //  for (unsigned int dimension1=0, num_dimensions=value.size(); dimension1<num_dimensions; dimension1 += 1) {
-
-      //    for (unsigned int dimension2=dimension1+1; dimension2<num_dimensions; dimension2 += 1) {
 
       if (value[dimension1]==c.value[dimension1] &&
 	  value[dimension2]==c.value[dimension2]) {
