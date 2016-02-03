@@ -30,13 +30,12 @@ while($dayfile = <LS>) {
   }
   &align();
 }
-
+
 sub align {
   my @TXT1native= `$preprocessor -l $l1 < $dir/$l1/$dayfile`;
   my @TXT2native = `$preprocessor -l $l2 < $dir/$l2/$dayfile`;
   my @TXT1;
   my @TXT2;
-  
   
   #change perl encoding
   foreach my $line (@TXT1native) {
@@ -114,7 +113,7 @@ foreach my $line (@TXT2native) {
   }
 }
 close(LS);
-
+
 sub skip {
   my ($TXT,$i,$pattern) = @_;
   my $i_old = $i;
@@ -167,14 +166,14 @@ sub sentence_align {
   for(my $i=0;$i<scalar(@{$P1});$i++) {
     my $line = $$P1[$i];
     $line =~ s/[\s\r\n]+//g;
-#    print "1: $line\n";
+
     $LEN1[$i+1] = $LEN1[$i] + length($line);
   }
   $LEN2[0] = 0;
   for(my $i=0;$i<scalar(@{$P2});$i++) {
     my $line = $$P2[$i];
     $line =~ s/[\s\r\n]+//g;
-#    print "2: $line\n";
+
     $LEN2[$i+1] = $LEN2[$i] + length($line);
   }
 
@@ -191,29 +190,29 @@ sub sentence_align {
 	  next if $d2>$i2;
 	  my $cost = $COST[$i1-$d1][$i2-$d2] - log($PRIOR{$d1}{$d2}) +  
 	    &match($LEN1[$i1]-$LEN1[$i1-$d1], $LEN2[$i2]-$LEN2[$i2-$d2]);
-#	  print "($i1->".($i1-$d1).",$i2->".($i2-$d2).") [".($LEN1[$i1]-$LEN1[$i1-$d1]).",".($LEN2[$i2]-$LEN2[$i2-$d2])."] = $COST[$i1-$d1][$i2-$d2] - ".log($PRIOR{$d1}{$d2})." + ".&match($LEN1[$i1]-$LEN1[$i1-$d1], $LEN2[$i2]-$LEN2[$i2-$d2])." = $cost\n";
+
 	  if ($cost < $COST[$i1][$i2]) {
 	    $COST[$i1][$i2] = $cost;
 	    @{$BACK[$i1][$i2]} = ($i1-$d1,$i2-$d2);
 	  }
 	}
       }
-#      print $COST[$i1][$i2]."($i1-$BACK[$i1][$i2][0],$i2-$BACK[$i1][$i2][1]) ";
+
     }
-#    print "\n";
+
   }
-  
+  
   # back tracking
   my (%NEXT);
   my $i1 = scalar(@{$P1});
   my $i2 = scalar(@{$P2});
   while($i1>0 || $i2>0) {
-#    print "back $i1 $i2\n";
+
     @{$NEXT{$BACK[$i1][$i2][0]}{$BACK[$i1][$i2][1]}} = ($i1,$i2);
     ($i1,$i2) = ($BACK[$i1][$i2][0],$BACK[$i1][$i2][1]);
   }
   while($i1<scalar(@{$P1}) || $i2<scalar(@{$P2})) {
-#    print "fwd $i1 $i2\n";
+
     for(my $i=$i1;$i<$NEXT{$i1}{$i2}[0];$i++) {
       print OUT1 " " unless $i == $i1;
       print OUT1 $$P1[$i];
@@ -227,7 +226,7 @@ sub sentence_align {
     ($i1,$i2) = @{$NEXT{$i1}{$i2}};
   }  
 }
-
+
 sub match {
   my ($len1,$len2) = @_;
   my $c = 1;
