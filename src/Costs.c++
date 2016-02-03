@@ -4,6 +4,7 @@
 #include <map>
 #include <vector>
 
+#include "Alignment.h++"
 #include "Cost.h++"
 #include "Dimensions.h++"
 #include "Distance.h++"
@@ -24,8 +25,6 @@ Cost Costs::get(Coordinate c) const {
 
 void Costs::calculate(Coordinate current, Coordinate previous) {
 
-  //  std::cerr << "In calculate..." << std::endl;
-
   if (! (previous < current)) {
     return;
   }
@@ -34,97 +33,80 @@ void Costs::calculate(Coordinate current, Coordinate previous) {
 
   for (std::pair<unsigned int, unsigned int> dimensions : Dimensions(dimensions())) {
     
-    //std::cerr << "d1==" << dimensions.first << "\td2==" << dimensions.second << std::endl;
-    //  for (unsigned int dimension1=0, numDimensions=dimensions(); dimension1<numDimensions; dimension1 += 1) {
-
     auto current_dim1_value = current.valueAt(dimensions.first);
     auto prev_dim1_value = previous.valueAt(dimensions.first);
 
+    
+    auto current_dim2_value = current.valueAt(dimensions.second);
+    auto prev_dim2_value = previous.valueAt(dimensions.second);
+    
+    auto x = lengths[dimensions.first];
+    auto y = lengths[dimensions.second];
+    
+    auto i = current_dim1_value;
+    auto j = current_dim2_value;
+    
+    
+    Alignment::Type alignment = Alignment::determine(current_dim1_value, current_dim2_value,
+						     prev_dim1_value, prev_dim2_value);
 
-    //    for (unsigned int dimension2=dimension1+1; dimension2<numDimensions; dimension2 += 1) {
+    int penalty_value = distance.penalty(alignment);
+    int match_value;
+    std::string operation;
+    
+    switch(alignment) {
+      
+    case Alignment::Type::Substitution: 
+      match_value = distance.match(x[i], y[j]);
+      operation = "substitution";
+      fprintf(stderr, "%s\tdistance(x1=%d, y1=%d, x2=%d, y2=%d) = %d = match_value (%d) + penalty_value (%d)\n", operation.c_str(), x[i], y[j], 0, 0, (match_value+penalty_value), match_value, penalty_value);
+      //      cost += distance.two_side_distance(x[i], y[j], 0, 0);
+      break;
+      
+    case Alignment::Type::Deletion:
+      match_value = distance.match(x[i], 0);
+      operation = "deletion";
+      fprintf(stderr, "%s\tdistance(x1=%d, y1=%d, x2=%d, y2=%d) = %d = match_value (%d) + penalty_value (%d)\n", operation.c_str(), x[i], 0, 0, 0, (match_value+penalty_value), match_value, penalty_value);
+      //      cost += distance.two_side_distance(x[i], 0, 0, 0);
+      break;
+      
+    case Alignment::Type::Insertion:
+      match_value = distance.match(0, y[j]);
+      operation = "insertion";
+      fprintf(stderr, "%s\tdistance(x1=%d, y1=%d, x2=%d, y2=%d) = %d = match_value (%d) + penalty_value (%d)\n", operation.c_str(), 0, y[j], 0, 0, (match_value+penalty_value), match_value, penalty_value);
+      //      cost += distance.two_side_distance(0, y[j], 0, 0);
+      break;
+      
+    case Alignment::Type::Contraction:
+      match_value = distance.match(x[i-1]+x[i], y[j]);
+      operation = "contraction";
+      fprintf(stderr, "%s\tdistance(x1=%d, y1=%d, x2=%d, y2=%d) = %d = match_value (%d) + penalty_value (%d)\n", operation.c_str(), x[i-1], y[j], x[i], 0, (match_value+penalty_value), match_value, penalty_value);
+      //      cost += distance.two_side_distance(x[i-1], y[j], x[i], 0);
+      break;
+      
+    case Alignment::Type::Expansion:
+      match_value = distance.match(x[i], y[j-1]+y[j]);
+      operation   = "expansion";
+      fprintf(stderr, "%s\tdistance(x1=%d, y1=%d, x2=%d, y2=%d) = %d = match_value (%d) + penalty_value (%d)\n", operation.c_str(), x[i], y[j-1], 0, y[j], (match_value+penalty_value), match_value, penalty_value);
+      //      cost += distance.two_side_distance(x[i], y[j-1], 0, y[j]);
+      break;
+            
+    case Alignment::Type::Melding:
+      match_value = distance.match(x[i-1]+x[i], y[j-1]+y[j]);
+      operation   = "melding";
+      fprintf(stderr, "%s\tdistance(x1=%d, y1=%d, x2=%d, y2=%d) = %d = match_value (%d) + penalty_value (%d)\n", operation.c_str(), x[i-1], y[j-1], x[i], y[j], (match_value+penalty_value), match_value, penalty_value);
+      //      cost += distance.two_side_distance(x[i-1], y[j-1], x[i], y[j]);
+      break;
+      
+    case Alignment::Type::Invalid:
+      return;
+      
+    }
 
-      //              std::cerr << "Dimension 1 = " << dimension1 << ", Dimension 2 = " << dimension2 << std::endl;
-
-      auto current_dim2_value = current.valueAt(dimensions.second);
-      auto prev_dim2_value = previous.valueAt(dimensions.second);
-
-      auto x = lengths[dimensions.first];
-      auto y = lengths[dimensions.second];
-
-      //      auto nx = x.size();
-      //      auto ny = y.size();
-
-      auto i = current_dim1_value;
-      auto j = current_dim2_value;
-
-      //      auto x1 = x[i];
-      //      auto y1 = y[j];
-
-      //      auto x2 = x[prev_dim1_value];
-      //      auto y2 = y[prev_dim2_value];
-
-      //  std::cerr << "(x1=" << x1 << ",y1="<<y1<<") vs " << current << std::endl;
-      //std::cerr << "(x2=" << x2 << ",y2="<<y2<<") vs " << previous << std::endl;
-
-      //  std::cerr << "prev_dim1_value=" << prev_dim1_value << " vs " << "current_dim1_value="<<current_dim1_value << std::endl;
-      // std::cerr << "prev_dim2_value=" << prev_dim2_value << " vs " << "current_dim2_value="<<current_dim2_value << std::endl;
-      //      std::cerr << "x1="<<x1<<"\ty1="<<y1<<std::endl;
-      //      std::cerr << "x1="<<x2<<"\ty1="<<y2<<std::endl;
-
-
-      if (prev_dim1_value + 1 == current_dim1_value &&
-	  prev_dim2_value + 1 == current_dim2_value) {
-
-	// 1-1 alignment (substitution)
-	//	std::cerr << "substitution" << std::endl;
-	cost += distance.two_side_distance(x[i], y[j], 0, 0);
-
-      } else if (prev_dim1_value + 1 == current_dim1_value &&
-		 prev_dim2_value + 0 == current_dim2_value) {
-
-	// 1-0 alignment (deletion)
-	// std::cerr << "deletion" << std::endl;
-	cost += distance.two_side_distance(x[i], 0, 0, 0);
-
-      } else if (prev_dim1_value + 0 == current_dim1_value &&
-		 prev_dim2_value + 1 == current_dim2_value) {
-
-	// 0-1 alignment (insertion)
-	// std::cerr << "insertion" << std::endl;
-	cost += distance.two_side_distance(0, y[j], 0, 0);
-
-      } else if (prev_dim1_value + 2 == current_dim1_value &&
-		 prev_dim2_value + 1 == current_dim2_value) {
-
-	// 2-1 alignment (contraction)
-	// std::cerr << "contraction" << std::endl;
-	cost += distance.two_side_distance(x[i-1], y[j], x[i], 0);
-
-      } else if (prev_dim1_value + 1 == current_dim1_value &&
-		 prev_dim2_value + 2 == current_dim2_value) {
-
-	// 1-2 alignment (expansion)
-	// std::cerr << "expansion" << std::endl;
-	cost += distance.two_side_distance(x[i], y[j-1], 0, y[j]);
-
-      } else if (prev_dim1_value + 2 == current_dim1_value &&
-		 prev_dim2_value + 2 == current_dim2_value) {
-
-	// 2-2 alignment (melding)
-	// std::cerr << "melding" << std::endl;
-	cost += distance.two_side_distance(x[i-1], y[j-1], x[i], y[j]);
-
-      } else {
-
-	return;
-	// Other alignment, which we will ignore
-	//		std::cerr << "Skipping:\tcurrent=" << current << "\tprevious=" << previous << std::endl;
-      }
-
-      //    }
-
+    cost += penalty_value + match_value;
+    
   } 
-
+  
   std::map<Coordinate, Cost>::iterator search = costs.find(current);
 
   if (search == costs.end() || cost < search->second.cost) {

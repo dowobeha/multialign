@@ -4,6 +4,7 @@
 #include <cstdio>
 #include <string>
 
+#include "Alignment.h++"
 
 /* Returns the area under a normal distribution
    from -inf to z standard deviations */
@@ -42,11 +43,37 @@ int Distance::match(int len1, int len2)
   else return(BIG_DISTANCE);
 }
 
-int Distance::two_side_distance(int x1, int y1, int x2, int y2)
+int Distance::penalty(Alignment::Type type) {
+
+  switch(type) {
+      
+  case Alignment::Type::Substitution: 
+    return penalty11;
+      
+  case Alignment::Type::Deletion:
+    return penalty01;
+
+  case Alignment::Type::Insertion:
+    return penalty01;
+      
+  case Alignment::Type::Contraction:
+    return penalty21;
+      
+  case Alignment::Type::Expansion:
+    return penalty21;
+  
+  case Alignment::Type::Melding:
+    return penalty22;
+    
+  case Alignment::Type::Invalid:
+    return BIG_DISTANCE;
+      
+  }
+
+}
+/*
+int two_side_distance(int x1, int y1, int x2, int y2)
 {
-  int penalty21 = 230;  /* -100 * log([prob of 2-1 match] / [prob of 1-1 match]) */
-  int penalty22 = 440;  /* -100 * log([prob of 2-2 match] / [prob of 1-1 match]) */
-  int penalty01 = 450;  /* -100 * log([prob of 0-1 match] / [prob of 1-1 match]) */
 
   int match_value;
   int penalty_value;
@@ -56,14 +83,14 @@ int Distance::two_side_distance(int x1, int y1, int x2, int y2)
 
   if(x2 == 0 && y2 == 0)
 
-    if(x1 == 0) {                 /* insertion : 0-1 alignment */
+    if(x1 == 0) {                 // insertion : 0-1 alignment 
       match_value   = match(x1, y1);
       penalty_value = penalty01;
       operation = "insertion";
       //      return(match(x1, y1) + penalty01);
     }
 
-    else if(y1 == 0) {            /* deletion : 1-0 alignment */
+    else if(y1 == 0) {            // deletion : 1-0 alignment 
       match_value = match(x1, y1);
       penalty_value = penalty01;
       operation = "deletion";
@@ -74,24 +101,24 @@ int Distance::two_side_distance(int x1, int y1, int x2, int y2)
       match_value = match(x1, y1);
       penalty_value = 0;
       operation = "substitution";
-      // return (match(x1, y1)); /* substitution : 1-1 alignment */
+      // return (match(x1, y1)); // substitution : 1-1 alignment 
     }
 
-  else if(x2 == 0) {              /* expansion : 1-2 alignment */
+  else if(x2 == 0) {              // expansion : 1-2 alignment 
     match_value = match(x1, y1 + y2);
     penalty_value = penalty21;
     operation = "expansion";
     //    return (match(x1, y1 + y2) + penalty21);
   }
 
-  else if(y2 == 0) {              /* contraction : 2-1 alignment */
+  else if(y2 == 0) {              // contraction : 2-1 alignment 
     match_value = match(x1 + x2, y1);
     penalty_value = penalty21;
     operation = "contraction";
     //    return(match(x1 + x2, y1) + penalty21);
   }
 
-  else {                          /* merger : 2-2 alignment */
+  else {                          // merger : 2-2 alignment 
     match_value = match(x1 + x2, y1 + y2);
     penalty_value = penalty22;
     operation = "merger";
@@ -105,3 +132,4 @@ int Distance::two_side_distance(int x1, int y1, int x2, int y2)
   return return_value;
 
 }
+*/
