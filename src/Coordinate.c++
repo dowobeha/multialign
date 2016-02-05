@@ -32,99 +32,40 @@ bool Coordinate::hasPredecessor(Coordinate& c) const {
   // Iterate over every pair of dimensions
   for (auto dimensions : Dimensions(value.size())) {
 
-    unsigned int dimension1 = dimensions.first;
-    unsigned int dimension2 = dimensions.second;
+    Alignment::Type alignment = 
+      Alignment::determine(this->valueAt(dimensions.first),  this->valueAt(dimensions.second),
+			   c.valueAt(dimensions.first), c.valueAt(dimensions.second));
 
+    switch(alignment) {
+      
+    case Alignment::Type::Substitution: 
+      break;
+      
+    case Alignment::Type::Deletion:
+      break;
+      
+    case Alignment::Type::Insertion:
+      break;
+      
+    case Alignment::Type::Contraction:
+      break;
+      
+    case Alignment::Type::Expansion:
+      break;
+            
+    case Alignment::Type::Melding:
+      break;
 
-      if (value[dimension1]==c.value[dimension1] &&
-	  value[dimension2]==c.value[dimension2]) {
-
-	// If a coordinate is identical in all dimensions to this coordinate,
-	//    then it couldn't be a predecessor of this coordinate.
-	//
-	// However, it's OK for any two dimensions to have identical values,
-	//    as long as some other pair of dimensions have differing values.
-	//
-	continue;
-
-      } else if (value[dimension1]==c.value[dimension1]+1 &&
-		 value[dimension2]==c.value[dimension2]+1) {
-
-	// It's OK for a predecessor coordinate 
-	//    to differ in value by -1 in the one dimension and also
-	//    to differ in value by -1 in the other dimension.
-	//
-	// This corresponds with a 1-1 sentence alignment (substitution)
-	//
-	continue;
-
-      } else if (value[dimension1]==c.value[dimension1]+1 &&
-		 value[dimension2]==c.value[dimension2]) {
-
-	// It's OK for a predecessor coordinate 
-	//    to differ in value by -1 in one dimension and
-	//    to be identical in the other dimension
-	//
-	// This corresponds with a 0-1 sentence alignment (insertion)
-	//
-	continue;
-
-      } else if (value[dimension1]==c.value[dimension1] &&
-		 value[dimension2]==c.value[dimension2]+1) {
-
-	// It's OK for a predecessor coordinate 
-	//    to be identical in one dimension and
-	//    to differ in value by -1 in the other dimension.
-	//
-	// This corresponds with a 1-0 sentence alignment (deletion)
-	//
-	continue;
-
-      } else if (value[dimension1]==c.value[dimension1]+1 &&
-		 value[dimension2]==c.value[dimension2]+2) {
-
-	// It's OK for a predecessor coordinate 
-	//    to differ in value by -1 in one dimension and
-	//    to differ in value by -2 in the other dimension.
-	//
-	// This corresponds with a 1-2 sentence alignment (expansion)
-	//
-	continue;
-
-      } else if (value[dimension1]==c.value[dimension1]+2 &&
-		 value[dimension2]==c.value[dimension2]+1) {
-
-	// It's OK for a predecessor coordinate 
-	//    to differ in value by -1 in one dimension and
-	//    to differ in value by -2 in the other dimension.
-	//
-	// This corresponds with a 2-1 sentence alignment (contraction)
-	//
-	continue;
-
-      } else if (value[dimension1]==c.value[dimension1]+2 &&
-		 value[dimension2]==c.value[dimension2]+2) {
-
-	// It's OK for a predecessor coordinate 
-	//    to differ in value by -2 in one dimension and
-	//    to differ in value by -2 in the other dimension.
-	//
-	// This corresponds with a 2-2 sentence alignment (melding)
-	//
-	continue;
-
-      } else {
-
-	// All other types of alignments are not allowed
-	//	std::cerr << "Coordinate " << c << " is not a valid predecessor of " << *this << std::endl;
-	return false;
-
-      }
-
-      //}
+    case Alignment::Type::Equal:
+      break;
+  
+    case Alignment::Type::Invalid:
+      return false;
+      
+    }
 
   }
-  //  std::cerr << "Coordinate " << c << " is a valid predecessor of " << *this << std::endl;
+
   return true;
 
 } 
