@@ -7,7 +7,7 @@ public:
   Alignment() = delete;
 
   enum class Type {
-    Substitution, Deletion, Insertion, Contraction, Expansion, Melding, Invalid
+    Substitution, Deletion, Insertion, Contraction, Expansion, Melding, Equal, Invalid
   };
 
   static Type determine(unsigned int x1, unsigned int y1,

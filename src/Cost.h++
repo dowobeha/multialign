@@ -6,10 +6,10 @@ class Cost {
 
 private:
 
-  Coordinate previous;
+
 
 public:
-
+  const Coordinate previous;
   const double cost;
   /*
   Cost() = default;

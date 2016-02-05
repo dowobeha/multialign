@@ -64,6 +64,9 @@ int Distance::penalty(Alignment::Type type) {
   
   case Alignment::Type::Melding:
     return penalty22;
+
+  case Alignment::Type::Equal:
+    return 0;
     
   case Alignment::Type::Invalid:
     return BIG_DISTANCE;

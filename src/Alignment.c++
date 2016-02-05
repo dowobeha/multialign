@@ -33,6 +33,11 @@ Alignment::Type Alignment::determine(unsigned int current_x, unsigned int curren
 
     return Alignment::Type::Melding;
 
+  } else if (previous_x == current_x && 
+	     previous_y == current_y) {
+    
+    return Alignment::Type::Equal;
+
   } else {
 
     return Alignment::Type::Invalid;

@@ -3,6 +3,7 @@
 #include "Dimensions.h++"
 
 #include <algorithm>
+#include <iostream>
 #include <ostream>
 #include <vector>
 
@@ -115,7 +116,7 @@ bool Coordinate::hasPredecessor(Coordinate& c) const {
       } else {
 
 	// All other types of alignments are not allowed
-
+	//	std::cerr << "Coordinate " << c << " is not a valid predecessor of " << *this << std::endl;
 	return false;
 
       }
@@ -123,7 +124,7 @@ bool Coordinate::hasPredecessor(Coordinate& c) const {
       //}
 
   }
-
+  //  std::cerr << "Coordinate " << c << " is a valid predecessor of " << *this << std::endl;
   return true;
 
 } 

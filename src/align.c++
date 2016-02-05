@@ -359,9 +359,17 @@ int main () {
 
   //  exit(0);
 
+  //  std::vector< std::vector<unsigned int> > lengths;
+  //  lengths.push_back(std::vector<unsigned int>{0,10});
+  //  lengths.push_back(std::vector<unsigned int>{0,6,4});
+
   std::vector< std::vector<unsigned int> > lengths;
-  lengths.push_back(std::vector<unsigned int>{0,10});
-  lengths.push_back(std::vector<unsigned int>{0,6,4});
+  lengths.push_back(std::vector<unsigned int>{0,5,5,3,7});
+  lengths.push_back(std::vector<unsigned int>{0,6,5,5});
+  lengths.push_back(std::vector<unsigned int>{0,6,4,2,6});
+
+  std::map<Coordinate, Cost> abc;
+
 
   Costs costs(lengths);
 
@@ -383,6 +391,13 @@ MyIterator from(numbers);
 
     //    for (Coordinate y : predecessors) {
     for (Coordinate y : x.possiblePredecessors()) {
+
+      if (abc.find(x) != abc.end()) {
+	std::cout << "abc.size()==" << abc.size() << " ";
+	abc.erase(x);
+	std::cout << "abc.size()==" << abc.size() << " " << (abc.find(x)==abc.end()) << std::endl;
+      }
+      abc.emplace(x, Cost(y, 123.45));
       //      std::cout << "\t" << y << std::endl;
       costs.calculate(x, y);
     }

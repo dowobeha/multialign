@@ -18,6 +18,9 @@ public:
 
   Coordinate(const Coordinates& coordinates, const std::vector<unsigned int> v);
 
+  Coordinate() = delete;
+  Coordinate& operator=(const Coordinate&) = delete;
+
   bool hasPredecessor(Coordinate& c) const;
 
   std::vector<Coordinate> possiblePredecessors() const;

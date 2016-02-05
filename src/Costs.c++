@@ -1,6 +1,7 @@
 #include "Costs.h++"
 
 #include <iostream>
+#include <functional>
 #include <map>
 #include <vector>
 
@@ -25,7 +26,16 @@ Cost Costs::get(Coordinate c) const {
 
 void Costs::calculate(Coordinate current, Coordinate previous) {
 
-  double cost = 0.0;
+  double cost; {
+    auto search = costs.find(previous);
+    if (search != costs.end()) {
+      cost = search->second.cost;
+    } else {
+      std::cerr << "Previous cost == 0.0 for previous coordinate " << previous << std::endl;
+      cost = 0.0;
+    }
+  }
+
 
   for (std::pair<unsigned int, unsigned int> dimensions : Dimensions(dimensions())) {
     
@@ -46,7 +56,7 @@ void Costs::calculate(Coordinate current, Coordinate previous) {
     // Define a local lambda function with reference access to all local variables
     auto match = [&](int x1, int y1, int x2, int y2) {
       match_value = distance.match(x1+x2, y1+y2);
-      fprintf(stderr, "%s\tdistance(x1=%d, y1=%d, x2=%d, y2=%d) = %d = match_value (%d) + penalty_value (%d)\n", operation.c_str(), x1, y1, x2, y2, (match_value+penalty_value), match_value, penalty_value);     
+      fprintf(stderr, "%s\tdistance(x1=%d, y1=%d, x2=%d, y2=%d) = %d = match_value (%d) + penalty_value (%d)", operation.c_str(), x1, y1, x2, y2, (match_value+penalty_value), match_value, penalty_value);    std::cerr << "\t" << previous << " -> " << current << std::endl;
     };
 
     
@@ -78,11 +88,18 @@ void Costs::calculate(Coordinate current, Coordinate previous) {
       break;
             
     case Alignment::Type::Melding:
-      operation   = "melding";
+      operation   = "merger";
       match(x[i-1], y[j-1], x[i], y[j]);
       break;
-      
+
+    case Alignment::Type::Equal:
+      operation   = "equal";
+      match_value = 0;
+      std::cerr << "equal\tdistance=0\t" << previous << " -> " << current << std::endl;
+      break;
+  
     case Alignment::Type::Invalid:
+      std::cerr << "invalid\tdistance=infinite\t" << previous << " -> " << current << std::endl;
       return;
       
     }
@@ -91,16 +108,36 @@ void Costs::calculate(Coordinate current, Coordinate previous) {
     
   } 
   
+  std::cerr << "Cost for " << previous << " -> " << current << " should now be " << cost << std::endl;
+
   std::map<Coordinate, Cost>::iterator search = costs.find(current);
 
-  if (search == costs.end() || cost < search->second.cost) {
+  
+
+  if (search == costs.end()) {
 
     // Associate the new cost with the current point
+    std::cerr << "A) Old best cost NONE to " << current << std::endl;
     costs.emplace(current, Cost(previous, cost));
+    std::cerr << "B) New best cost " << cost << " from " << previous << " to " << current << std::endl;
+    std::cerr << "C) New best cost " << get(current).cost << " from " << get(current).previous << " to " << current << std::endl;
 
-    std::cerr << "New best cost " << cost << " from " << previous << " to " << current << std::endl;
+  } else if ( cost < search->second.cost) {
+    std::cerr << "A) Old best cost " << get(current).cost << " from " << get(current).previous << " to " << current << std::endl;
+    std::cout << "W) costs.size()==" << costs.size() << " " << (costs.find(current)==costs.end()) << "\t" << std::endl;
+    costs.erase(current);
+    std::cout << "X) costs.size()==" << costs.size() << " " << (costs.find(current)==costs.end()) << "\t" << std::endl;
+    costs.emplace(current, Cost(previous, cost));
+    std::cout << "Y) costs.size()==" << costs.size() << " " << (costs.find(current)==costs.end()) << "\t" << std::endl;
+    std::cerr << "B) New best cost " << cost << " from " << previous << " to " << current << std::endl;
+    std::cerr << "C) New best cost " << get(current).cost << " from " << get(current).previous << " to " << current << std::endl;
 
+  } else {
+    // print out old and new
+    std::cerr << "A) Old best cost " << get(current).cost << " from " << get(current).previous << " to " << current << std::endl;
+    std::cerr << "B) New worse cost " << cost << " from " << previous << " to " << current << std::endl;
   }
+
   
 
 }
@@ -108,13 +145,59 @@ void Costs::calculate(Coordinate current, Coordinate previous) {
 void Costs::backtrace() const {
   std::cerr << "Backtrace..." << std::endl;
 
+  std::vector< std::pair<Coordinate,Cost> > backtrace;
 
-  for (const Coordinate &c = costs.rbegin()->first; costs.find(c) != costs.end(); c=get(c).previous) {
-    Cost cost = get(c);
-    std::cerr << cost.previous << " -> " << c << " (" << cost.cost << ")" << std::endl;    
+  std::function<void(Coordinate)> recursivelyBuildBacktrace = [&](Coordinate c) {
+    auto search = costs.find(c);
+    if (search != costs.end()) {
+      //backtrace.insert(backtrace.begin(), *search);
+      backtrace.push_back(*search);
+      recursivelyBuildBacktrace(search->second.previous);
+    } else {
+      std::cerr << "During backtrace, couldn't find " << c << std::endl;
+    }
+  };
+
+
+  recursivelyBuildBacktrace(costs.rbegin()->first);
+  //  std::reverse(backtrace.begin(),backtrace.end());
+
+
+  std::cerr << std::endl << "Backtrace..." << std::endl;
+
+  for (auto search : backtrace) {
+    auto cost = search.second;
+    std::cerr << cost.previous << " -> " << search.first << " (" << cost.cost << ")" << std::endl;
   }
 
+  std::cerr << std::endl;
 
+  //  for (auto search : backtrace) {
+  for (auto i=backtrace.rbegin(), end=backtrace.rend(); i<end; ++i) {
+    auto search=*i;
+    auto cost = search.second;
+    auto current = search.first;
+    std::cerr << cost.previous << " -> " << current << " (" << cost.cost << ")" << std::endl;
 
+    bool noUnalignedSentences=true;
+    for (unsigned int d=0, max=dimensions(); d<max; d+=1) {
+      if (current.valueAt(d) == cost.previous.valueAt(d)) {
+	noUnalignedSentences = false;
+	break;
+      }
+    }
+
+    if (noUnalignedSentences) {
+
+      for (unsigned int d=0, max=dimensions(); d<max; d+=1) {
+
+	std::cout << "Dimension " << d << ":\t";
+	for (auto i1=cost.previous.valueAt(d)+1, i2 = current.valueAt(d); i1<=i2; i1+=1) {
+	  std::cout << lengths[d][i1] << " ";
+	}
+	std::cout << std::endl;
+      }
+    }
+  }
 
 }
