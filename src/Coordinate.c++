@@ -36,33 +36,7 @@ bool Coordinate::hasPredecessor(Coordinate& c) const {
       Alignment::determine(this->valueAt(dimensions.first),  this->valueAt(dimensions.second),
 			   c.valueAt(dimensions.first), c.valueAt(dimensions.second));
 
-    switch(alignment) {
-      
-    case Alignment::Type::Substitution: 
-      break;
-      
-    case Alignment::Type::Deletion:
-      break;
-      
-    case Alignment::Type::Insertion:
-      break;
-      
-    case Alignment::Type::Contraction:
-      break;
-      
-    case Alignment::Type::Expansion:
-      break;
-            
-    case Alignment::Type::Melding:
-      break;
-
-    case Alignment::Type::Equal:
-      break;
-  
-    case Alignment::Type::Invalid:
-      return false;
-      
-    }
+    if (alignment == Alignment::Type::Invalid) return false;
 
   }
 
