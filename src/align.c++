@@ -49,7 +49,7 @@ vector<vector<string>> extract_paragraphs(vector<string>& txt, size_t & i, regex
 
   return paragraphs;
 }
-
+/*
 double pnorm(double z) {
   auto t = 1/(1 + 0.2316419 * z);
   return 1 - 0.3989423 * exp(-z * z / 2) *
@@ -121,6 +121,7 @@ public:
   }
 
 };
+*/
 /*
 class Back {
 
@@ -142,6 +143,7 @@ public:
 
 }
 */
+/*
 void sentence_align(const vector<string>& p1, const vector<string>& p2) {
 
 
@@ -207,11 +209,11 @@ void sentence_align(const vector<string>& p1, const vector<string>& p2) {
   }
   //  std::cerr << "Done with sentence_align" << std::endl;
 
-  /*  
-  for (auto s1 : p1) {
-    std::cerr << "utf codepoint count in \"" << s1 << "\" == " << utf8_codepoints(s1) << " vs s1.size()==" << s1.size() << " and nonwhitespace==" << nonwhitespace_utf8_codepoints(s1) << std::endl;
-  }
-  */
+  
+//  for (auto s1 : p1) {
+//    std::cerr << "utf codepoint count in \"" << s1 << "\" == " << utf8_codepoints(s1) << " vs s1.size()==" << s1.size() << " and nonwhitespace==" << nonwhitespace_utf8_codepoints(s1) << std::endl;
+//  }
+  
 
   // back tracking
   {    
@@ -261,7 +263,7 @@ void sentence_align(const vector<string>& p1, const vector<string>& p2) {
 
 
 }
-
+*/
 void align(string preprocessor, string outdir, string dir, string l1, string l2, string dayfile) {
 
   auto txt1 = process(preprocessor + " -l " + l1 + " < " + dir+"/"+l1+"/"+dayfile);
