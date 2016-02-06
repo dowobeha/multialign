@@ -105,7 +105,7 @@ bool Europarl::match(std::map< std::string, unsigned int>& map, std::string patt
 
   for (auto language : languages) {
     auto success = advanceIfNeeded(language, map, pattern, regex);
-    std::cerr << "success == " << success << " for " << pattern << " in language " << language << std::endl;
+    //    std::cerr << "success == " << success << " for " << pattern << " in language " << language << std::endl;
     if (!success) return false;
   }
     
@@ -114,7 +114,7 @@ bool Europarl::match(std::map< std::string, unsigned int>& map, std::string patt
   for (auto language : languages) {
     while (map[language] < max) {
       auto success = advanceIfNeeded(language, map, pattern, regex);
-      std::cerr << "success == " << success << " for " << pattern << " in language " << language << " with max==" << max << std::endl;
+      //      std::cerr << "success == " << success << " for " << pattern << " in language " << language << " with max==" << max << std::endl;
       if (!success) return false;
     }
   }
@@ -140,19 +140,19 @@ void Europarl::align() {
 
     if (allIndicesValid()) {
       if (anyMatch(chapter_regex)) {
-	std::cerr << "Matching chapter..." << std::endl;
+	//	std::cerr << "Matching chapter..." << std::endl;
 	if (! match(chapter, chapter_pattern, chapter_regex)) {
 	  return;
 	}
       } else if (anyMatch(speaker_regex)) {
-	std::cerr << "Matching speaker..." << std::endl;
+	//	std::cerr << "Matching speaker..." << std::endl;
 	if (! match(speaker, speaker_pattern, speaker_regex)) {
 	  return;
 	}
       } else {
-	std::cerr << "Matching paragraph..." << std::endl;
+	//	std::cerr << "Matching paragraph..." << std::endl;
 	if (extractParagraphs()) {
-	  // TODO: more here
+	  //	  std::cerr << "Aligning paragraphs..." << std::endl;
 	}
       }
     } else {
@@ -178,9 +178,10 @@ bool Europarl::extractParagraphs() {
 	   !std::regex_match(txt[language][index[language]], speaker_regex);
 	 index[language] += 1) {
 
-      if (std::regex_match(txt[language][index[language]], paragraph_regex) || paragraphs.empty()) {
+      if (std::regex_match(txt[language][index[language]], paragraph_regex) || paragraphs[language].empty()) {
 	paragraphs[language].push_back(std::vector<std::string>{ txt[language][index[language]] });
       } else {
+	//	std::cerr << "paragraphs[" << language << "].size == " << paragraphs[language].size() << std::endl;
 	paragraphs[language].back().push_back(txt[language][index[language]]);
       }
 
