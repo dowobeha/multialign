@@ -40,17 +40,20 @@ Europarl::Europarl(std::string dayfile, std::vector<std::string> languages, std:
 
 
 bool Europarl::skip(std::string language, std::regex pattern, std::string pattern_string) {
-  
+  std::cerr << "skipping in " << language << std::endl;
   auto old_index = index[language];
 
   bool success = false;
 
   for (auto n=txt[language].size(); index[language]<n; index[language]+=1) {
+    std::cerr << "index " << index[language] << " for language " << language << std::endl;
     if (std::regex_match(txt[language][index[language]], pattern)) {
       success = true;
       break;
     }
+    std::cerr << "skip()\tIncrementing index from " << index[language] << " to ";
   }
+  std::cerr << " for language " << language << std::endl;
 
   std::cerr << dayfile << " skipped lines " << old_index << "-" << index[language] << " to reach " << pattern_string << std::endl;
   
@@ -73,13 +76,16 @@ bool Europarl::advanceIfNeeded(std::string language, std::map< std::string, unsi
   std::smatch matches;
 
   if (std::regex_match(txt[language][index[language]], matches, regex)) {
+    std::cerr << "Advance was not needed and success == true" << std::endl;
     map[language] = std::stoi(matches[1]);
     return true;
   } else {
     bool success = skip(language, regex, pattern);
     if (success && index[language] < size[language]) {
+      std::cerr << "Advance was     needed and success == true" << std::endl;
       return true;
     } else {
+      std::cerr << "Advance was     needed and success == false" << std::endl;
       return false;
     }
   }
@@ -105,7 +111,7 @@ bool Europarl::match(std::map< std::string, unsigned int>& map, std::string patt
 
   for (auto language : languages) {
     auto success = advanceIfNeeded(language, map, pattern, regex);
-    //    std::cerr << "success == " << success << " for " << pattern << " in language " << language << std::endl;
+    std::cerr << "success == " << success << " for " << pattern << " in language " << language << std::endl;
     if (!success) return false;
   }
     
@@ -114,14 +120,17 @@ bool Europarl::match(std::map< std::string, unsigned int>& map, std::string patt
   for (auto language : languages) {
     while (map[language] < max) {
       auto success = advanceIfNeeded(language, map, pattern, regex);
-      //      std::cerr << "success == " << success << " for " << pattern << " in language " << language << " with max==" << max << std::endl;
+      std::cerr << "success == " << success << " for " << pattern << " in language " << language << " with max==" << max << " and map["<<language<<"]=="<<map[language] <<" and index["<<language<<"]==" << index[language]<<std::endl;
       if (!success) return false;
     }
   }
 
   for (auto language : languages) {
+    std::cerr << "\t" << txt[language][index[language]] << std::endl;
     *(out[language]) << txt[language][index[language]] << std::endl;
+    std::cerr << "Advancing index for " << language << " from " << index[language];
     index[language] += 1;
+    std::cerr << " to " << index[language] << std::endl;
   }
     
   return true;
@@ -140,20 +149,74 @@ void Europarl::align() {
 
     if (allIndicesValid()) {
       if (anyMatch(chapter_regex)) {
-	//	std::cerr << "Matching chapter..." << std::endl;
+		std::cerr << "Matching chapter..." << std::endl;
 	if (! match(chapter, chapter_pattern, chapter_regex)) {
 	  return;
 	}
       } else if (anyMatch(speaker_regex)) {
-	//	std::cerr << "Matching speaker..." << std::endl;
+		std::cerr << "Matching speaker..." << std::endl;
 	if (! match(speaker, speaker_pattern, speaker_regex)) {
 	  return;
 	}
       } else {
-	//	std::cerr << "Matching paragraph..." << std::endl;
+		std::cerr << "Matching paragraph..." << std::endl;
 	if (extractParagraphs()) {
-	  //	  std::cerr << "Aligning paragraphs..." << std::endl;
+	  	  std::cerr << "Aligning paragraphs..." << std::endl;
+	  for (unsigned int paragraph_index=0, max=paragraphs[languages[0]].size(); paragraph_index<max; paragraph_index+=1) {
+
+	    std::vector< std::vector<unsigned int> > lengths_all_languages;	    
+	    for (auto language : languages) {
+	      std::vector<unsigned int> lengths_this_language;
+	      lengths_this_language.push_back(0);
+	      std::cerr << "Lengths for " << language << ":\t[ ";
+	      for (auto sentence : paragraphs[language][paragraph_index]) {
+		lengths_this_language.push_back(sentence.size());
+	      }
+	      for (auto length : lengths_this_language) {
+		std::cerr << length << " ";
+	      }
+	      std::cerr << "]" << std::endl;
+	      lengths_all_languages.push_back(lengths_this_language);
+	    }
+
+	    Costs gale_and_church(lengths_all_languages);
+	    Coordinates coordinates(gale_and_church);
+
+	    for (Coordinate x : coordinates) {
+	      for (Coordinate y : x.possiblePredecessors()) {
+		gale_and_church.calculate(x, y);
+	      }
+	    }
+	    std::cout << std::endl;
+	
+	    std::vector< std::vector<std::string> > text;
+	    for (auto language : languages) {
+	      text.push_back(paragraphs[language][paragraph_index]);
+	    }
+
+	    std::cerr << "gale_and_church.backtrace() begin" << std::endl;
+	    auto alignments = gale_and_church.backtrace();
+	    std::cerr << "gale_and_church.backtrace() return" << std::endl;
+	    for (unsigned int l=0, n=languages.size(); l<n; l+=1) {
+	      for (auto value : alignments[l]) {
+		std::cerr << "\nalignment value for language " << languages[l] << " is " << value << std::endl;
+		if (value < 0) {
+		  std::cerr << std::endl;
+		  *(out[languages[l]]) << std::endl;
+		} else {
+		  //		  std::cerr << "\there" << txt[languages[l]][index[languages[l]]++];
+		  //		  *(out[languages[l]]) << txt[languages[l]][index[languages[l]]++];
+		  std::cerr << "\there\t" << paragraphs[languages[l]][paragraph_index][value-1];
+		  *(out[languages[l]]) <<  paragraphs[languages[l]][paragraph_index][value-1];
+
+		}
+	      } std::cerr << std::endl;
+	    }
+	    
+	    std::cerr << "gale_and_church.backtrace() complete" << std::endl;
+	  }
 	}
+
       }
     } else {
       std::cerr << "Indices not valid..." << std::endl;
@@ -177,16 +240,16 @@ bool Europarl::extractParagraphs() {
 	   !std::regex_match(txt[language][index[language]], chapter_regex) &&
 	   !std::regex_match(txt[language][index[language]], speaker_regex);
 	 index[language] += 1) {
-
+    std::cerr << "(extractParagraphs) index " << index[language] << " for language " << language << std::endl;
       if (std::regex_match(txt[language][index[language]], paragraph_regex) || paragraphs[language].empty()) {
 	paragraphs[language].push_back(std::vector<std::string>{ txt[language][index[language]] });
       } else {
 	//	std::cerr << "paragraphs[" << language << "].size == " << paragraphs[language].size() << std::endl;
 	paragraphs[language].back().push_back(txt[language][index[language]]);
       }
-
+    std::cerr << "extractParagraphs()\tIncrementing index from " << index[language] << " to ";
     }
-
+    std::cerr << "index " << index[language] << " for language " << language << std::endl;
   }
 
   auto expectedSize = paragraphs[languages[0]].size();

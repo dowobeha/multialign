@@ -238,14 +238,16 @@ void align(string preprocessor, string outdir, string dir, string l1, string l2,
 
 }
 */
-
+/*
 int main2 () {
   
 
   std::vector< std::vector<unsigned int> > lengths;
-  lengths.push_back(std::vector<unsigned int>{0,5,5,3,7});
-  lengths.push_back(std::vector<unsigned int>{0,6,5,5});
-  lengths.push_back(std::vector<unsigned int>{0,6,4,2,6});
+  //  lengths.push_back(std::vector<unsigned int>{0,5,5,3,7});
+  //  lengths.push_back(std::vector<unsigned int>{0,6,5,5});
+  //  lengths.push_back(std::vector<unsigned int>{0,6,4,2,6});
+  lengths.push_back(std::vector<unsigned int>{30});
+  lengths.push_back(std::vector<unsigned int>{24});
 
   Costs costs(lengths);
   Coordinates coordinates(costs);
@@ -262,7 +264,7 @@ int main2 () {
   return 0;
 }
 
-
+*/
 int main (int argc, char *argv[]) {
 
   string preprocessor = (argc >= 2) ? string(argv[1]) : string("tools/split-sentences.perl");

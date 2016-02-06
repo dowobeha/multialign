@@ -26,7 +26,7 @@ public:
 
   unsigned int dimensions() const;
 
-  void backtrace() const;
+  std::vector< std::vector< int > > backtrace() const;
 
 };
 

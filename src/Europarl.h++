@@ -9,6 +9,10 @@
 #include <string>
 #include <vector>
 
+#include "Costs.h++"
+#include "Coordinate.h++"
+#include "Coordinates.h++"
+
 class EuroparlFileDeleter {
 
 public:
