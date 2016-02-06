@@ -14,6 +14,7 @@
 #include "Cost.h++"
 #include "Costs.h++"
 #include "Dimensions.h++"
+#include "Europarl.h++"
 
 using std::string;
 using std::vector;
@@ -21,7 +22,7 @@ using std::regex;
 using std::ofstream;
 using std::smatch;
 using std::pair;
-
+/*
 unsigned int skip(string dayfile, vector<string>& txt, unsigned int i, regex pattern, string pattern_string) {
   
   auto old_i = i;
@@ -49,6 +50,109 @@ vector<vector<string>> extract_paragraphs(vector<string>& txt, size_t & i, regex
 
   return paragraphs;
 }
+*/
+/*
+void align(string preprocessor, string outdir, string dir, string l1, vector<string>& languages, string dayfile) {
+
+  std::map< std::string, std::vector<string> > txt;
+  std::map< std::string, unsigned int> size;
+  std::map< std::string, unsigned int> index;
+  std::map< std::string, std::ofstream > out;
+  std::map< std::string, unsigned int > chapter;
+
+  for (auto language : languages) {
+    txt[language] = process(preprocessor + " -l "+ language + " < " + dir+"/"+language+"/"+dayfile);
+    size[language] = txt[language].size();
+    index[language] = 0;
+    out[language].open(outdir+"/"+language+"/"+dayfile);
+  }
+
+  auto allIndicesValid = [&]() {
+    for (auto language : languages) {
+      if (index[language] >= size[language]) {
+	return false;
+      }
+    }
+    return true;
+  };
+
+  auto advanceToChapter = [&](string language) {
+    smatches matches;
+
+    for (bool found = false; !found && index[language] < size[language]; ) {
+
+      if (std::regex_match(txt[language][index[language]], matches, chapter)) {
+	chapter[language] = std::stoi(matches[1]);
+	return true;
+      } else {
+	index[language] = skip(dayfile, txt[language], index[language], chapter, chapter_pattern);
+      }
+
+    }
+
+    return false;
+
+  }
+
+  auto findMaximumChapter = [&]() {
+
+    auto max = chapter[languages[0]];
+
+    for (auto language : languages) {
+      if (chapter[language] > max) {
+	max = chapter[language];
+      }
+    }
+
+    return max;
+  }
+
+
+  auto matchChapters = [&]() {
+    chapter.clear();
+
+    for (auto language : languages) {
+      auto success = advanceToChapter(language);
+      if (!success) return false;
+    }
+    
+    auto max = findMaximumChapter();
+
+    for (auto language : languages) {
+      while (chapter[language] < max) {
+	auto success = advanceToChapter();
+	if (!success) return false;
+      }
+    }
+
+    for (auto language : languages) {
+      out[language] << txt[language][index[language]] << std::endl;
+      index[language] += 1;
+    }
+    
+    return allIndicesValid();
+  }
+
+
+  string chapter_pattern = R"(^<CHAPTER ID=\"?(\d+)\"?.*)";
+  regex chapter{chapter_pattern};
+  
+  string speaker_pattern = R"(^<SPEAKER ID=\"?(\d+)\"?.*)";
+  regex speaker{speaker_pattern};
+  
+  string paragraph_pattern = R"(^<P>.*$)";
+  regex paragraph{paragraph_pattern};
+  while (allIndicesValid()) {
+
+    auto success = matchChapters();
+    if (!success) return;
+
+    
+  }
+
+}
+*/
+/*
 
 void align(string preprocessor, string outdir, string dir, string l1, string l2, string dayfile) {
 
@@ -119,8 +223,8 @@ void align(string preprocessor, string outdir, string dir, string l1, string l2,
 	std::cerr << dayfile << " (speaker " << s1 << ") different number of paragraphs " << p1.size() << " != " << p2.size() << std::endl;
       } else {
 	for (unsigned long n=p1.size(), p=0; p<n; p+=1) {
-	  //	  std::cerr << "Aligning paragraphs " << p << " of " << n << std::endl;
-	  sentence_align(p1[p], p2[p]);
+	  	  std::cerr << "Aligning paragraphs " << p << " of " << n << std::endl;
+	  //sentence_align(p1[p], p2[p]);
 	  //std::cerr << "Aligned paragraphs " << p << " of " << n << std::endl;
 	}
       }
@@ -133,9 +237,9 @@ void align(string preprocessor, string outdir, string dir, string l1, string l2,
   out2.close();
 
 }
+*/
 
-
-int main () {
+int main2 () {
   
 
   std::vector< std::vector<unsigned int> > lengths;
@@ -158,18 +262,54 @@ int main () {
   return 0;
 }
 
-/*
-int main3 (int argc, char *argv[]) {
 
-  string dir("txt");
-  string outdir("aligned_cxx");
+int main (int argc, char *argv[]) {
 
-  if (argc < 4) {
-    std::cerr << "Usage:\t" << argv[0] << " split-sentences.perl l1 l2" << std::endl;
+  string preprocessor = (argc >= 2) ? string(argv[1]) : string("split-sentences.perl");
+  string dir          = (argc >= 3) ? string(argv[2]) : string("txt");
+  string outdir       = (argc >= 4) ? string(argv[3]) : string("aligned_cxx");
+
+  vector<string> languages =  process("ls " + dir);
+
+  if (languages.size() < 2) {
+    std::cerr << "Can't align because " << dir << " contains fewer than 2 languages" << std::endl;
     return EXIT_FAILURE;
   }
 
-  string preprocessor(argv[1]);
+  for (auto language : languages) {
+    ensureDirectoryExists(dir + "/" + language);
+    createDirectory(outdir + "/" + language);
+  }
+
+  for (auto dayfile : process("ls " + dir + "/" + languages[0])) {
+
+    std::vector<string> present;
+    std::vector<string> missing;
+
+    for (auto language : languages) {
+      if (fileExists(dir + "/" + language + "/" + dayfile)) {
+	present.push_back(language);
+      } else {
+	missing.push_back(language);
+      }
+    }
+
+    if (present.size() == languages.size()) {
+      std::cerr << "Will align " << dayfile << std::endl;
+      Europarl europarl(dayfile, languages, dir, outdir, preprocessor);
+      europarl.align();
+    } else {
+      std::cerr << dayfile << " only for ";
+      for (auto language : present) { std::cerr << language << " "; }
+      std::cerr << ", but not for ";
+      for (auto language : missing) { std::cerr << language << " "; }
+      std::cerr << ", skipping" << std::endl;
+    }
+
+  }
+
+
+  /*
   string l1(argv[2]);
   string l2(argv[3]);
 
@@ -188,7 +328,7 @@ int main3 (int argc, char *argv[]) {
     }
     
   }
-
+  */
   return EXIT_SUCCESS;
 }
-*/
+
