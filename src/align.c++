@@ -265,7 +265,7 @@ int main2 () {
 
 int main (int argc, char *argv[]) {
 
-  string preprocessor = (argc >= 2) ? string(argv[1]) : string("split-sentences.perl");
+  string preprocessor = (argc >= 2) ? string(argv[1]) : string("tools/split-sentences.perl");
   string dir          = (argc >= 3) ? string(argv[2]) : string("txt");
   string outdir       = (argc >= 4) ? string(argv[3]) : string("aligned_cxx");
 

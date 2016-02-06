@@ -1,4 +1,5 @@
 #include "Europarl.h++"
+#include "util.h"
 
 #include <iostream>
 
@@ -32,7 +33,7 @@ Europarl::Europarl(std::string dayfile, std::vector<std::string> languages, std:
 
     //out.insert(std::make_pair(language, std::unique_ptr< std::ofstream *, std::function<void(std::ofstream *)> >(p, close_ofstream);
 
-    out.insert(std::make_pair( language, std::unique_ptr< std::ofstream, std::function<void(std::ofstream *)> >(new std::ofstream(std::string(outdir + "/" + dayfile).c_str(), std::ofstream::out), close_ofstream)));
+    out.insert(std::make_pair( language, std::unique_ptr< std::ofstream, std::function<void(std::ofstream *)> >(new std::ofstream(std::string(outdir + "/" + language + "/" + dayfile).c_str(), std::ofstream::out), close_ofstream)));
   }
   
 }
@@ -59,6 +60,7 @@ bool Europarl::skip(std::string language, std::regex pattern, std::string patter
 bool Europarl::allIndicesValid() {
   for (auto language : languages) {
     if (index[language] >= size[language]) {
+      std::cerr << "For language " << language << " the current index " << index[language] << " >= " << size[language] << "(size[" << language << "])" << std::endl;
       return false;
     }
   }
@@ -103,6 +105,7 @@ bool Europarl::match(std::map< std::string, unsigned int>& map, std::string patt
 
   for (auto language : languages) {
     auto success = advanceIfNeeded(language, map, pattern, regex);
+    std::cerr << "success == " << success << " for " << pattern << " in language " << language << std::endl;
     if (!success) return false;
   }
     
@@ -111,6 +114,7 @@ bool Europarl::match(std::map< std::string, unsigned int>& map, std::string patt
   for (auto language : languages) {
     while (map[language] < max) {
       auto success = advanceIfNeeded(language, map, pattern, regex);
+      std::cerr << "success == " << success << " for " << pattern << " in language " << language << " with max==" << max << std::endl;
       if (!success) return false;
     }
   }
@@ -126,23 +130,33 @@ bool Europarl::match(std::map< std::string, unsigned int>& map, std::string patt
 
 void Europarl::align() {
 
+  txt.clear();
+  for (auto language : languages) {
+    txt[language] = process(preprocessor + " -l " + language + " < " + dir+"/"+language+"/"+dayfile);
+    size[language] = txt[language].size();
+  }
+
   while (true) {
 
     if (allIndicesValid()) {
       if (anyMatch(chapter_regex)) {
+	std::cerr << "Matching chapter..." << std::endl;
 	if (! match(chapter, chapter_pattern, chapter_regex)) {
 	  return;
 	}
       } else if (anyMatch(speaker_regex)) {
+	std::cerr << "Matching speaker..." << std::endl;
 	if (! match(speaker, speaker_pattern, speaker_regex)) {
 	  return;
 	}
       } else {
+	std::cerr << "Matching paragraph..." << std::endl;
 	if (extractParagraphs()) {
 	  // TODO: more here
 	}
       }
     } else {
+      std::cerr << "Indices not valid..." << std::endl;
       return;
     }
 
