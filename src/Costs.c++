@@ -209,6 +209,6 @@ std::vector< std::vector< int > > Costs::backtrace() const {
       }
     }
   }
-  std::cerr << "(Costs.c++:backtrace()\tDone" << std::endl;
+  //std::cerr << "(Costs.c++:backtrace()\tDone" << std::endl;
   return results;
 }
