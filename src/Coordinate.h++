@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <ostream>
 
 // To prevent a circular header dependency, forward declare Coordinates
 class Coordinates;

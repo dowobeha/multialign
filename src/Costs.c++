@@ -37,7 +37,7 @@ void Costs::calculate(Coordinate current, Coordinate previous) {
   }
 
 
-  for (std::pair<unsigned int, unsigned int> dimensions : Dimensions(dimensions())) {
+  for (std::pair<unsigned int, unsigned int> dimensions : Dimensions(this->dimensions())) {
     
     auto x = lengths[dimensions.first];
     auto y = lengths[dimensions.second];
