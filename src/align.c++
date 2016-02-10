@@ -9,7 +9,6 @@
 #include "util.h"
 
 #include "Coordinate.h++"
-#include "CoordinateIterator.h++"
 #include "Coordinates.h++"
 #include "Cost.h++"
 #include "Costs.h++"

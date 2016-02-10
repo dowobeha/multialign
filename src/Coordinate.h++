@@ -11,20 +11,18 @@ class Coordinate {
 
 private:
   
-  const Coordinates& coordinates;
+  std::vector<unsigned int> max;
 
-  const std::vector<unsigned int> value;
+  std::vector<unsigned int> value;
 
 public:
 
-  Coordinate(const Coordinates& coordinates, const std::vector<unsigned int> v);
+  Coordinate(const std::vector<unsigned int> max);
 
   Coordinate() = delete;
   Coordinate& operator=(const Coordinate&) = delete;
 
   bool hasPredecessor(Coordinate& c) const;
-
-  std::vector<Coordinate> possiblePredecessors() const;
 
   bool operator ==(const Coordinate& that) const;
 
@@ -33,6 +31,12 @@ public:
   unsigned int dimensions() const;
 
   unsigned int valueAt(unsigned int dimension) const;
+
+  bool canIncrement();
+
+  void increment();
+
+  bool resetToEarliestPredecessorOf(Coordinate &c);
 
   friend std::ostream& operator<<(std::ostream& os, const Coordinate& c);
 

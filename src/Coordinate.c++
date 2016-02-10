@@ -7,9 +7,7 @@
 #include <ostream>
 #include <vector>
 
-Coordinate::Coordinate(const Coordinates& coordinates,
-		       const std::vector<unsigned int> v) : coordinates(coordinates),
-							    value(v) {
+Coordinate::Coordinate(const std::vector<unsigned int> max) : value(max.size(), 0), max(max) {
   // This space intentionally left blank
 }
 
@@ -44,19 +42,6 @@ bool Coordinate::hasPredecessor(Coordinate& c) const {
 
 } 
 
-std::vector<Coordinate> Coordinate::possiblePredecessors() const {
-
-    std::vector<Coordinate> results;
-
-    for (Coordinate c : coordinates) {
-      if (this->hasPredecessor(c)) {
-	results.push_back(c);
-      }
-    }
-
-    return results;
-  }
-
 bool Coordinate::operator ==(const Coordinate& that) const {
   return std::equal(value.begin(), value.end(), 
 		    that.value.begin(), that.value.end());
@@ -67,17 +52,66 @@ bool Coordinate::operator <(const Coordinate& that) const {
 				      that.value.begin(), that.value.end());
 }
 
+void Coordinate::increment() {
+
+
+
+  
+  for (unsigned int dimension=0, num_dimensions=value.size(); dimension < num_dimensions; dimension += 1) {
+    if (value[dimension] + 1 <= max[dimension]) {
+      value[dimension] += 1;
+
+      break;
+    } else {
+      value[dimension] = 0;
+    }
+  }
+  
+
+
+}
+
+bool Coordinate::canIncrement() {
+
+  for (unsigned int dimension=0, num_dimensions=value.size(); dimension < num_dimensions; dimension += 1) {
+    
+    if (value[dimension] < max[dimension]) {
+      return true;
+    }
+    
+  }
+
+  return false;
+
+}
+
+bool Coordinate::resetToEarliestPredecessorOf(Coordinate &c) {
+
+  for (unsigned int dimension=0, num_dimensions=value.size(); dimension < num_dimensions; dimension += 1) {
+
+    max[dimension] = c.value[dimension];
+
+    if (value[dimension] >= 2) {
+      value[dimension] -= 2;
+    } else {
+      value[dimension] = 0;
+    }
+    
+  }
+
+  return (*this) < c;
+
+}
 
 std::ostream& operator<<(std::ostream& os, const Coordinate& c) {
   
   unsigned int size = c.value.size();
-  unsigned int lastIndex = size - 1;
   
   os << '(';
-  for (unsigned int index=0; index<lastIndex; index+=1) {
+  for (unsigned int index=size-1; index>0; index-=1) {
     os << c.value[index] << ',';
   }
-  os << c.value[lastIndex] << ')';
+  os << c.value[0] << ')';
   
   return os;
 }
