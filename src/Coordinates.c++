@@ -1,6 +1,7 @@
 #include "Coordinates.h++"
 #include "Costs.h++"
 
+#include <climits>
 #include <vector>
 
 Coordinates::Coordinates(Costs& costs) : dimensional_maximum(calculateDimensionalMaxima(costs.lengths)) {
