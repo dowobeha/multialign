@@ -186,12 +186,12 @@ void Europarl::align() {
 
 	    {
 	      unsigned int total = 1;
-	      std::cerr << "Total number of coordinates to explore = \\prod_{i in";
+	      //	      std::cerr << "Total number of coordinates to explore = \\prod_{i in";
 	      for (auto lengths : lengths_all_languages) {
 		total *= lengths.size();
-		std::cerr << " " << lengths.size();
+		//std::cerr << " " << lengths.size();
 	      }
-	      std::cerr << "} = " << total << std::endl;
+	      //std::cerr << "} = " << total << std::endl;
 	    }
 	    Costs gale_and_church(lengths_all_languages);
 	    //Coordinates coordinates(gale_and_church);
@@ -204,11 +204,11 @@ void Europarl::align() {
 
 	    Coordinate current(dimMax), previous(dimMax); 
 
-	    std::cerr << "\r" << (++counter) << "\t" << current;
+	    //	    std::cerr << "\r" << (++counter) << "\t" << current;
 	    do {
 
 	      current.increment();
-	      std::cerr << "\r" << (++counter) << "\t" << current;
+	      //std::cerr << "\r" << (++counter) << "\t" << current;
 
 	      if (previous.resetToEarliestPredecessorOf(current)) {
 
