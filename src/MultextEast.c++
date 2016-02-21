@@ -168,6 +168,7 @@ bool MultextEast::match(std::map< std::string, MultextEastID>& map, std::string 
   }
   
   for (auto language : languages) {
+    std::cerr << "Outputting what should be a paragraph tag for " << language << "\t" << txt[language][index[language]] << std::endl;
     //std::cerr << "\t" << txt[language][index[language]] << std::endl;
     *(out[language]) << txt[language][index[language]] << std::endl;
     //std::cerr << "Advancing index for " << language << " from " << index[language];
@@ -204,11 +205,11 @@ void MultextEast::align() {
       } else {
 	//std::cerr << "! anyMatch paragraph" << std::endl;
 	if (extractSentences()) {
-	  //std::cerr << "Extracted sentences!" << std::endl;
+	  std::cerr << "Extracted sentences!" << std::endl;
 	  for (auto language : languages) {
 	    //std::cerr << "Printing out " << language << std::endl;
 	    for (auto sentence : sentences[language]) {
-	      //std::cerr << "Printing out " << language << "\t:" <<sentence << std::endl;
+	      std::cerr << "Printing out " << language << "\t:" <<sentence << std::endl;
 	      *(out[language]) << sentence << std::endl;
 	    }
 	  }
