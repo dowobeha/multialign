@@ -12,5 +12,8 @@ endif()
 add_definitions(-pg)
 add_executable(align align.c++ util.c++ Alignment.c++ Coordinate.c++ Coordinates.c++ Costs.c++ Dimensions.c++ DimensionsIterator.c++ Distance.c++ Europarl.c++)
 
+add_executable(multextEast multext.c++ util.c++  MultextEast.c++)
+
+
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pg")
 set(CMAKE_BUILD_TYPE Debug)
