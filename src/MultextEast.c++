@@ -154,16 +154,22 @@ bool MultextEast::match(std::map< std::string, MultextEastID>& map, std::string 
     if (!success) return false;
   }
     
+ here:
   auto max = findMaximum(map);
 
   for (auto language : languages) {
     while (map[language] < max) {
       auto success = advanceIfNeeded(language, map, pattern, regex);
       //std::cerr << "advanceIfNeeded success (in middle of match()) == " << success << " for " << pattern << " in language " << language << " with max==" << max << " and map["<<language<<"]=="<<map[language] <<" and index["<<language<<"]==" << index[language] << "\t" << txt[language][index[language]]<<std::endl;
-      if (success && map[language] < max) {
-	index[language] += 1;
+      if (success) {
+	if (map[language] < max) {
+	  index[language] += 1;
+	} else if (max < map[language]) {
+	  goto here;
+	}
+      } else {
+	return false;
       }
-      if (!success) return false;
     }
   }
   
@@ -205,11 +211,11 @@ void MultextEast::align() {
       } else {
 	//std::cerr << "! anyMatch paragraph" << std::endl;
 	if (extractSentences()) {
-	  std::cerr << "Extracted sentences!" << std::endl;
+	  //std::cerr << "Extracted sentences!" << std::endl;
 	  for (auto language : languages) {
 	    //std::cerr << "Printing out " << language << std::endl;
 	    for (auto sentence : sentences[language]) {
-	      std::cerr << "Printing out " << language << "\t:" <<sentence << std::endl;
+	      //std::cerr << "Printing out " << language << "\t:" <<sentence << std::endl;
 	      *(out[language]) << sentence << std::endl;
 	    }
 	  }
@@ -220,7 +226,7 @@ void MultextEast::align() {
 
     } else {
 
-      std::cerr << "Indices not valid" << std::endl;
+      //std::cerr << "Indices not valid" << std::endl;
 
       return;
 
