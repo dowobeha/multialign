@@ -13,7 +13,7 @@ MultextEastID::MultextEastID(std::string id) {
     value.push_back(std::stoi(token));
   }
 
-  std::cerr << "MultextEastID " << id << " : size==" << value.size() << std::endl;
+  //std::cerr << "MultextEastID " << id << " : size==" << value.size() << std::endl;
 }
 
 bool MultextEastID::operator <(const MultextEastID& that) const {
@@ -84,7 +84,7 @@ bool MultextEast::skip(std::string language, std::map< std::string, MultextEastI
     if (std::regex_match(txt[language][index[language]], matches, pattern)) {
       success = true;
       map[language] = MultextEastID(matches[1]);
-      std::cerr << "Set map["<<language<<"]=="<<map[language]<<std::endl;    
+      //std::cerr << "Set map["<<language<<"]=="<<map[language]<<std::endl;    
       break;
     }
     //std::cerr << "skip()\tIncrementing index from " << index[language] << " to ";
@@ -112,17 +112,17 @@ bool MultextEast::advanceIfNeeded(std::string language, std::map< std::string, M
   std::smatch matches;
 
   if (std::regex_match(txt[language][index[language]], matches, regex)) {
-    std::cerr << "Advance was not needed and success == true\tlanguage" << language << " was already at " << txt[language][index[language]] << std::endl;
+    //std::cerr << "Advance was not needed and success == true\tlanguage" << language << " was already at " << txt[language][index[language]] << std::endl;
     map[language] = MultextEastID(matches[1]);
-    std::cerr << "Set map["<<language<<"]=="<<map[language]<<std::endl;
+    //std::cerr << "Set map["<<language<<"]=="<<map[language]<<std::endl;
     return true;
   } else {
     bool success = skip(language, map, regex, pattern);
     if (success && index[language] < size[language]) {
-      std::cerr << "Advance was     needed and success == true "<< "\tlanguage " << language << " skipped to " << txt[language][index[language]] << std::endl;
+      //std::cerr << "Advance was     needed and success == true "<< "\tlanguage " << language << " skipped to " << txt[language][index[language]] << std::endl;
       return true;
     } else {
-      std::cerr << "Advance was     needed and success == false" << std::endl;
+      //std::cerr << "Advance was     needed and success == false" << std::endl;
       return false;
     }
   }
@@ -131,14 +131,14 @@ bool MultextEast::advanceIfNeeded(std::string language, std::map< std::string, M
 
 MultextEastID MultextEast::findMaximum(std::map< std::string, MultextEastID>& map) {
   auto max = map[languages[0]];
-  std::cerr << "Value for " << languages[0] << " is " << map[languages[0]] << std::endl;
+  //std::cerr << "Value for " << languages[0] << " is " << map[languages[0]] << std::endl;
   for (auto language : languages) {
-    std::cerr << "Value for " << language << " is " << map[language] << std::endl;
+    //std::cerr << "Value for " << language << " is " << map[language] << std::endl;
     if (max < map[language]) {
       max = map[language];
     }
   }
-  std::cerr << "Value max is " << max << std::endl;
+  //std::cerr << "Value max is " << max << std::endl;
   return max;
  
 }
@@ -149,8 +149,8 @@ bool MultextEast::match(std::map< std::string, MultextEastID>& map, std::string 
 
   for (auto language : languages) {
     auto success = advanceIfNeeded(language, map, pattern, regex);
-    std::cerr << txt[language][index[language]]<<std::endl;
-    std::cerr << "advanceIfNeeded success (at beginning of match()) == " << success << " for " << pattern << " in language " << language << " with map["<<language<<"]=="<<map[language] <<" and index["<<language<<"]==" << index[language] << "\t" << std::endl;
+    //std::cerr << txt[language][index[language]]<<std::endl;
+    //std::cerr << "advanceIfNeeded success (at beginning of match()) == " << success << " for " << pattern << " in language " << language << " with map["<<language<<"]=="<<map[language] <<" and index["<<language<<"]==" << index[language] << "\t" << std::endl;
     if (!success) return false;
   }
     
@@ -159,56 +159,56 @@ bool MultextEast::match(std::map< std::string, MultextEastID>& map, std::string 
   for (auto language : languages) {
     while (map[language] < max) {
       auto success = advanceIfNeeded(language, map, pattern, regex);
-      std::cerr << "advanceIfNeeded success (in middle of match()) == " << success << " for " << pattern << " in language " << language << " with max==" << max << " and map["<<language<<"]=="<<map[language] <<" and index["<<language<<"]==" << index[language] << "\t" << txt[language][index[language]]<<std::endl;
+      //std::cerr << "advanceIfNeeded success (in middle of match()) == " << success << " for " << pattern << " in language " << language << " with max==" << max << " and map["<<language<<"]=="<<map[language] <<" and index["<<language<<"]==" << index[language] << "\t" << txt[language][index[language]]<<std::endl;
       if (success && map[language] < max) {
 	index[language] += 1;
       }
       if (!success) return false;
     }
   }
-
+  
   for (auto language : languages) {
-    std::cerr << "\t" << txt[language][index[language]] << std::endl;
+    //std::cerr << "\t" << txt[language][index[language]] << std::endl;
     *(out[language]) << txt[language][index[language]] << std::endl;
-    std::cerr << "Advancing index for " << language << " from " << index[language];
+    //std::cerr << "Advancing index for " << language << " from " << index[language];
     index[language] += 1;
-    std::cerr << " to " << index[language] << std::endl;
+    //std::cerr << " to " << index[language] << std::endl;
   }
-    
+  
   return true;
 
 }
 
 void MultextEast::align() {
-  std::cerr << "Aligning..." << std::endl;
+  //std::cerr << "Aligning..." << std::endl;
   txt.clear();
   for (auto language : languages) {
     txt[language] = process("cat " + dir+"/"+language+"/"+dayfile);
     size[language] = txt[language].size();
-    std::cerr << "Language " << language << " has size " << size[language] << std::endl;
+    //std::cerr << "Language " << language << " has size " << size[language] << std::endl;
   }
 
   while (true) {
-    std::cerr << "While true..." << std::endl;
+    //std::cerr << "While true..." << std::endl;
     if (allIndicesValid()) {
-      std::cerr << "All indices valid" << std::endl;
+      //std::cerr << "All indices valid" << std::endl;
       if (anyMatch(paragraph_regex)) {
-	std::cerr << "anyMatch paragraph" << std::endl;
+	//std::cerr << "anyMatch paragraph" << std::endl;
 	if (! match(paragraph, paragraph_pattern, paragraph_regex)) {
-	  std::cerr << "! paragraph match" << std::endl;
+	  //std::cerr << "! paragraph match" << std::endl;
 	  return;
 	} else {
-	  std::cerr << "  paragraph match" << std::endl;
+	  //std::cerr << "  paragraph match" << std::endl;
 	}
 
       } else {
-	std::cerr << "! anyMatch paragraph" << std::endl;
+	//std::cerr << "! anyMatch paragraph" << std::endl;
 	if (extractSentences()) {
-	  std::cerr << "Extracted sentences!" << std::endl;
+	  //std::cerr << "Extracted sentences!" << std::endl;
 	  for (auto language : languages) {
-	    std::cerr << "Printing out " << language << std::endl;
+	    //std::cerr << "Printing out " << language << std::endl;
 	    for (auto sentence : sentences[language]) {
-	      std::cerr << "Printing out " << language << "\t:" <<sentence << std::endl;
+	      //std::cerr << "Printing out " << language << "\t:" <<sentence << std::endl;
 	      *(out[language]) << sentence << std::endl;
 	    }
 	  }
@@ -242,19 +242,19 @@ bool MultextEast::extractSentences() {
 	   !std::regex_match(txt[language][index[language]], paragraph_regex);
 	 index[language] += 1) {
       
-      std::cerr << "(extractSentences) index " << index[language] << " for language " << language << "\t" << txt[language][index[language]] << "\t" << std::regex_match(txt[language][index[language]], paragraph_regex)  <<std::endl;
+      //std::cerr << "(extractSentences) index " << index[language] << " for language " << language << "\t" << txt[language][index[language]] << "\t" << std::regex_match(txt[language][index[language]], paragraph_regex)  <<std::endl;
       
       //      if (std::regex_match(txt[language][index[language]], sentence_regex) || sentences[language].empty()) {
       //	std::cerr << "Matched sentence_regex for language " << language << std::endl;
 	//	sentences[language].push_back( txt[language][index[language]] );
       //      } else {
-	std::cerr << "Before:\tsentences[" << language << "].size == " << sentences[language].size() << std::endl;
+	//std::cerr << "Before:\tsentences[" << language << "].size == " << sentences[language].size() << std::endl;
 	sentences[language].push_back( txt[language][index[language]] );
-	std::cerr << "After:\tsentences[" << language << "].size == " << sentences[language].size() << std::endl;
+	//std::cerr << "After:\tsentences[" << language << "].size == " << sentences[language].size() << std::endl;
 	//      }
-      std::cerr << "extractSentences()\tIncrementing index from " << index[language] << " to ";
+	//std::cerr << "extractSentences()\tIncrementing index from " << index[language] << " to ";
     }
-    std::cerr << "index " << index[language] << " for language " << language << std::endl;
+    //std::cerr << "index " << index[language] << " for language " << language << std::endl;
   }
 
   auto expectedSize = sentences[languages[0]].size();
