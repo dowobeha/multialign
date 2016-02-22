@@ -174,7 +174,7 @@ bool MultextEast::match(std::map< std::string, MultextEastID>& map, std::string 
   }
   
   for (auto language : languages) {
-    std::cerr << "Outputting what should be a paragraph tag for " << language << "\t" << txt[language][index[language]] << std::endl;
+    //std::cerr << "Outputting what should be a paragraph tag for " << language << "\t" << txt[language][index[language]] << std::endl;
     //std::cerr << "\t" << txt[language][index[language]] << std::endl;
     *(out[language]) << txt[language][index[language]] << std::endl;
     //std::cerr << "Advancing index for " << language << " from " << index[language];
@@ -256,7 +256,9 @@ bool MultextEast::extractSentences() {
 	//	sentences[language].push_back( txt[language][index[language]] );
       //      } else {
 	//std::cerr << "Before:\tsentences[" << language << "].size == " << sentences[language].size() << std::endl;
+            if (! std::regex_match(txt[language][index[language]], sentence_regex)) {
 	sentences[language].push_back( txt[language][index[language]] );
+	      }
 	//std::cerr << "After:\tsentences[" << language << "].size == " << sentences[language].size() << std::endl;
 	//      }
 	//std::cerr << "extractSentences()\tIncrementing index from " << index[language] << " to ";

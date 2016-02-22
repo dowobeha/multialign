@@ -267,21 +267,54 @@ void Europarl::align() {
 
 	    //std::cerr << "gale_and_church.backtrace() begin" << std::endl;
 	    auto alignments = gale_and_church.backtrace();
+	    for (unsigned int l=0, n=languages.size(); l<n; l+=1) {
+	      std::cerr << languages[l] << "\t";
+	      for (unsigned int a=0, m=alignments[l].size(); a<m; a+=1) {
+		std::cerr << alignments[l][a] << " ";
+	      }
+	      std::cerr << std::endl;
+	    }
+	    std::vector< std::vector<unsigned int> > counts;
+	    for (unsigned int l=0, n=languages.size(); l<n; l+=1) {
+	      counts.push_back(std::vector<unsigned int>());
+	      unsigned int counter = 0;
+	      for (unsigned int a=0, m=alignments[l].size(); a<m; a+=1) {
+		if (alignments[l][a] < 0) {
+		  counts[l].push_back(counter);
+		  counter = 0;
+		} else {
+		  counter += 1;
+		}
+	      }
+	    }
+	    for (unsigned int j=0, p=counts[0].size(); j<p; j+=1) {
+	      for (unsigned int l=0, n=languages.size(); l<n; l+=1) {
+		std::cout << counts[l][j];
+		if (l+1<n) {
+		  std::cout << ':';
+		} else {
+		  std::cout << std::endl;
+		}
+	      }
+	    }
 	    //std::cerr << "gale_and_church.backtrace() return" << std::endl;
 	    for (unsigned int l=0, n=languages.size(); l<n; l+=1) {
+	      std::cerr << languages[l] << "\t";
 	      for (auto value : alignments[l]) {
 		//std::cerr << "\nalignment value for language " << languages[l] << " is " << value << std::endl;
 		if (value < 0) {
 		  //std::cerr << std::endl;
 		  *(out[languages[l]]) << std::endl;
+		  std::cerr << std::endl << languages[l] << "\t";
 		} else {
 		  //		  //std::cerr << "\there" << txt[languages[l]][index[languages[l]]++];
 		  //		  *(out[languages[l]]) << txt[languages[l]][index[languages[l]]++];
 		  //std::cerr << "\there\t" << paragraphs[languages[l]][paragraph_index][value-1];
 		  *(out[languages[l]]) <<  paragraphs[languages[l]][paragraph_index][value-1] << " ";
+		  std::cerr << paragraphs[languages[l]][paragraph_index][value-1] << " ";
 
 		}
-	      } //std::cerr << std::endl;
+	      } std::cerr << std::endl;
 	    }
 	    //exit(1);
 	    //std::cerr << "gale_and_church.backtrace() complete" << std::endl;
@@ -313,7 +346,8 @@ bool Europarl::extractParagraphs() {
 	 index[language] += 1) {
     //std::cerr << "(extractParagraphs) index " << index[language] << " for language " << language << std::endl;
       if (std::regex_match(txt[language][index[language]], paragraph_regex) || paragraphs[language].empty()) {
-	paragraphs[language].push_back(std::vector<std::string>{ txt[language][index[language]] });
+	//	paragraphs[language].push_back(std::vector<std::string>{ txt[language][index[language]] });
+	paragraphs[language].push_back(std::vector<std::string>());
       } else {
 	//	//std::cerr << "paragraphs[" << language << "].size == " << paragraphs[language].size() << std::endl;
 	paragraphs[language].back().push_back(txt[language][index[language]]);

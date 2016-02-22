@@ -199,13 +199,13 @@ std::vector< std::vector< int > > Costs::backtrace() const {
     if (noUnalignedSentences) {
       for (unsigned int d=0, max=dimensions(); d<max; d+=1) {
 
-	std::cout << "Dimension " << d << ":\t";
+	std::cerr << "Dimension " << d << ":\t";
 	for (auto i1=cost.previous.valueAt(d)+1, i2 = current.valueAt(d); i1<=i2; i1+=1) {
-	  std::cout << "txt["<<d<<"]["<<i1<<"]" << " ";
+	  std::cerr << "txt["<<d<<"]["<<i1<<"]" << " ";
 	  results[d].push_back(i1);
 	}
 	results[d].push_back(-1);
-	std::cout << std::endl;
+	std::cerr << std::endl;
       }
     }
   }
