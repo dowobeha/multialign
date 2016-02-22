@@ -128,7 +128,7 @@ bool Europarl::match(std::map< std::string, unsigned int>& map, std::string patt
   }
 
   for (auto language : languages) {
-    //std::cerr << "\t" << txt[language][index[language]] << std::endl;
+    if (language=="en") std::cout << txt[language][index[language]] << std::endl;
     *(out[language]) << txt[language][index[language]] << std::endl;
     //std::cerr << "Advancing index for " << language << " from " << index[language];
     index[language] += 1;
