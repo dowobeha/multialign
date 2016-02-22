@@ -187,7 +187,7 @@ std::vector< std::vector< int > > Costs::backtrace() const {
     auto cost = search.second;
     auto current = search.first;
 //    std::cerr << cost.previous << " -> " << current << " (" << cost.cost << ")" << std::endl;
-
+/*
     bool noUnalignedSentences=true;
     for (unsigned int d=0, max=dimensions(); d<max; d+=1) {
       if (current.valueAt(d) == cost.previous.valueAt(d)) {
@@ -197,6 +197,7 @@ std::vector< std::vector< int > > Costs::backtrace() const {
     }
 
     if (noUnalignedSentences) {
+*/
       for (unsigned int d=0, max=dimensions(); d<max; d+=1) {
 
 	std::cerr << "Dimension " << d << ":\t";
@@ -208,7 +209,7 @@ std::vector< std::vector< int > > Costs::backtrace() const {
 	std::cerr << std::endl;
       }
     }
-  }
+  //  }
   //std::cerr << "(Costs.c++:backtrace()\tDone" << std::endl;
   return results;
 }
