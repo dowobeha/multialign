@@ -91,14 +91,14 @@ bool Coordinate::resetToEarliestPredecessorOf(Coordinate &c) {
 
     max[dimension] = c.value[dimension];
 
-    if (value[dimension] >= 2) {
-      value[dimension] -= 2;
+    if (c.value[dimension] >= 2) {
+      value[dimension] = c.value[dimension] - 2;
     } else {
       value[dimension] = 0;
     }
     
   }
-
+  //  std::cerr << "Possible predecessor " << (*this) << ((*this)<c ? " is " : " is not ") << " < " << c << std::endl;
   return (*this) < c;
 
 }

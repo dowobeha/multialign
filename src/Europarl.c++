@@ -206,8 +206,9 @@ void Europarl::align() {
 
 	    //	    std::cerr << "\r" << (++counter) << "\t" << current;
 	    do {
-
+	      //	      std::cerr << "Incrementing current from " << current;
 	      current.increment();
+	      //	      std::cerr << " to " << current << std::endl;
 	      //std::cerr << "\r" << (++counter) << "\t" << current;
 
 	      if (previous.resetToEarliestPredecessorOf(current)) {
@@ -263,6 +264,10 @@ void Europarl::align() {
 	    std::vector< std::vector<std::string> > text;
 	    for (auto language : languages) {
 	      text.push_back(paragraphs[language][paragraph_index]);
+	      //std::cerr << language << "\t" << language << "\t" << paragraphs[language][paragraph_index] << std::endl;
+	      // for (auto x : paragraphs[language][paragraph_index]) {
+	      //std::cerr << language << "\t" << language << "\t" << (x) << std::endl;
+	      //}
 	    }
 
 	    //std::cerr << "gale_and_church.backtrace() begin" << std::endl;

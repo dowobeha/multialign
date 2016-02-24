@@ -26,6 +26,8 @@ Cost Costs::get(Coordinate c) const {
 
 void Costs::calculate(Coordinate current, Coordinate previous) {
 
+  //  std::cerr << "Calculating cost for " << previous << " -> " << current << std::endl;
+
   double cost; {
     auto search = costs.find(previous);
     if (search != costs.end()) {
@@ -149,19 +151,19 @@ std::vector< std::vector< int > > Costs::backtrace() const {
   std::vector< std::pair<Coordinate,Cost> > backtrace;
 
   std::function<void(Coordinate)> recursivelyBuildBacktrace = [&](Coordinate c) {
-//    std::cerr << "recursivelyBuildBacktrace(" << c << ")" << std::endl;
+    //    std::cerr << "recursivelyBuildBacktrace(" << c << ")" << std::endl;
     auto search = costs.find(c);
     if (search != costs.end()) {
       //backtrace.insert(backtrace.begin(), *search);
       backtrace.push_back(*search);
       recursivelyBuildBacktrace(search->second.previous);
     } 
-//    else {
-//      std::cerr << "During backtrace, couldn't find " << c << std::endl;
-//    }
+    //    else {
+    //      std::cerr << "During backtrace, couldn't find " << c << std::endl;
+    //    }
   };
 
-//  std::cerr << "costs.size()==" << costs.size() << std::endl;
+  //  std::cerr << "costs.size()==" << costs.size() << std::endl;
 
   recursivelyBuildBacktrace(costs.rbegin()->first);
   //  std::reverse(backtrace.begin(),backtrace.end());
@@ -186,7 +188,7 @@ std::vector< std::vector< int > > Costs::backtrace() const {
     auto search=*i;
     auto cost = search.second;
     auto current = search.first;
-//    std::cerr << cost.previous << " -> " << current << " (" << cost.cost << ")" << std::endl;
+    //    std::cerr << cost.previous << " -> " << current << " (" << cost.cost << ")" << std::endl;
 /*
     bool noUnalignedSentences=true;
     for (unsigned int d=0, max=dimensions(); d<max; d+=1) {
