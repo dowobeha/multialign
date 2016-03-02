@@ -19,19 +19,23 @@ private:
 
 public:
 
-  const std::vector< std::vector<unsigned int> > lengths;
+  Costs(std::vector<std::string> languages) : languages(languages) {}
 
-  Costs(std::vector< std::vector<unsigned int> > lengths, std::vector<std::string> languages) : lengths(lengths), languages(languages) {}
 
-  void calculate(Coordinate current, Coordinate previous);
 
-  Cost get(Coordinate c) const;
+  double get(Coordinate c) const;
+
+  void set(Coordinate current, Coordinate previous, double cost);
 
   unsigned int dimensions() const;
 
   std::map< std::string, std::vector< int > > backtrace() const;
 
   double cost() const;
+
+  double twoDimensionalMatchCost(Alignment::Type alignment,
+				 unsigned int i, const std::vector<unsigned int>& x,
+				 unsigned int j, const std::vector<unsigned int>& y) const;
 
 };
 

@@ -13,13 +13,13 @@ private:
   static const int penalty01 = 450;  /* -100 * log([prob of 0-1 match] / [prob of 1-1 match]) */
   static const int penalty11 = 0;    /* -100 * log([prob of 1-1 match] / [prob of 1-1 match]) */
 
-  double pnorm(double z);
+  static double pnorm(double z);
 
 public:
 
-  int penalty(Alignment::Type type);
-  int match(int len1, int len2);
-
+  static int penalty(Alignment::Type type);
+  static int match(int len1, int len2);
+  static int maxCost() { return BIG_DISTANCE; }
   //  int two_side_distance(Alignment::Type type);
 
 };

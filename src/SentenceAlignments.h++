@@ -18,4 +18,20 @@ public:
   SentenceAlignments(Costs costs) : 
     values{costs.backtrace()}, cost{costs.cost()} {}
 
+  bool contains(std::string language) {
+    return values.find(language) == values.end();
+  }
+
+  unsigned int numSegments() const {
+    unsigned int count = 0;
+  
+    for (auto value : values.begin()->second) {
+      if (value < 0) {
+	count += 1;
+      }
+    }
+
+    return count;
+  }
+
 };

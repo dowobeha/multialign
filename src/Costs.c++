@@ -7,106 +7,81 @@
 
 #include "Alignment.h++"
 #include "Cost.h++"
-#include "Dimensions.h++"
+
 #include "Distance.h++"
 
 unsigned int Costs::dimensions() const {
-  return lengths.size();
+  return languages.size();
 }
 
-Cost Costs::get(Coordinate c) const {
+double Costs::get(Coordinate c) const {
     
-  std::map<Coordinate, Cost>::const_iterator search = costs.find(c);
-  std::pair<Coordinate, Cost> result = *search;
+  auto search = costs.find(c);
+
+  if (search != costs.end()) {
+    return search->second.cost;
+  } else {
+    return 0.0;
+  }
   
-  return result.second;
- 
 }
 
+double Costs::twoDimensionalMatchCost(Alignment::Type alignment,
+				      unsigned int i, const std::vector<unsigned int>& x,
+				      unsigned int j, const std::vector<unsigned int>& y) const {
 
-void Costs::calculate(Coordinate current, Coordinate previous) {
+  int match_value;
 
-  double cost; {
-    auto search = costs.find(previous);
-    if (search != costs.end()) {
-      cost = search->second.cost;
-    } else {
-      cost = 0.0;
-    }
+  // Define a local lambda function with reference access to all local variables
+  auto match = [&](int x1, int y1, int x2, int y2) {
+    match_value = distance.match(x1+x2, y1+y2);
+  };
+
+    
+  switch(alignment) {
+      
+  case Alignment::Type::Substitution: 
+    match(x[i], y[j], 0, 0);
+    break;
+      
+  case Alignment::Type::Deletion:
+    match(x[i], 0, 0, 0);
+    break;
+      
+  case Alignment::Type::Insertion:
+    match(0, y[j], 0, 0);
+    break;
+      
+  case Alignment::Type::Contraction:
+    match(x[i-1], y[j], x[i], 0);
+    break;
+      
+  case Alignment::Type::Expansion:
+    match(x[i], y[j-1], 0, y[j]);
+    break;
+            
+  case Alignment::Type::Melding:
+    match(x[i-1], y[j-1], x[i], y[j]);
+    break;
+
+  case Alignment::Type::Equal:
+    match_value = 0;
+    break;
+  
+  case Alignment::Type::Invalid:
+  default:
+    match_value = distance.maxCost();
+    break;
+      
   }
 
+  return match_value;
 
-  for (std::pair<unsigned int, unsigned int> dimensions : Dimensions(this->dimensions())) {
-    
-    auto x = lengths[dimensions.first];
-    auto y = lengths[dimensions.second];
-    
-    auto i = current.valueAt(dimensions.first);
-    auto j = current.valueAt(dimensions.second);
-        
-    Alignment::Type alignment = 
-      Alignment::determine(current.valueAt(dimensions.first),  current.valueAt(dimensions.second),
-			   previous.valueAt(dimensions.first), previous.valueAt(dimensions.second));
+}
 
-    int penalty_value = distance.penalty(alignment);
-    int match_value;
-    std::string operation;
-
-    // Define a local lambda function with reference access to all local variables
-    auto match = [&](int x1, int y1, int x2, int y2) {
-      match_value = distance.match(x1+x2, y1+y2);
-    };
-
-    
-    switch(alignment) {
-      
-    case Alignment::Type::Substitution: 
-      operation = "substitution";
-      match(x[i], y[j], 0, 0);
-      break;
-      
-    case Alignment::Type::Deletion:
-      operation = "deletion";
-      match(x[i], 0, 0, 0);
-      break;
-      
-    case Alignment::Type::Insertion:
-      operation = "insertion";
-      match(0, y[j], 0, 0);
-      break;
-      
-    case Alignment::Type::Contraction:
-      operation = "contraction";
-      match(x[i-1], y[j], x[i], 0);
-      break;
-      
-    case Alignment::Type::Expansion:
-      operation   = "expansion";
-      match(x[i], y[j-1], 0, y[j]);
-      break;
-            
-    case Alignment::Type::Melding:
-      operation   = "merger";
-      match(x[i-1], y[j-1], x[i], y[j]);
-      break;
-
-    case Alignment::Type::Equal:
-      operation   = "equal";
-      match_value = 0;
-      break;
-  
-    case Alignment::Type::Invalid:
-      return;
-      
-    }
-
-    cost += penalty_value + match_value;
-    
-  } 
-  
+void Costs::set(Coordinate current, Coordinate previous, double cost) {
 
   std::map<Coordinate, Cost>::iterator search = costs.find(current);
-
 
   if (search == costs.end()) {
 
@@ -169,3 +144,4 @@ std::map< std::string, std::vector< int > > Costs::backtrace() const {
   
   return results;
 }
+

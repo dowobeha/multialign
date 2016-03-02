@@ -4,6 +4,7 @@
 #include "Costs.h++"
 #include "Coordinate.h++"
 #include "Coordinates.h++"
+#include "Dimensions.h++"
 #include "SentenceAligner.h++"
 #include "SentenceAlignments.h++"
 
@@ -40,6 +41,37 @@ void SentenceAligner::alignPartialDP(std::vector< std::vector<unsigned int> > le
   }
   std::cerr << ") with cost " << bestAlignments.cost << std::endl;
 
+  unsigned int segmentsInBestAlignment = bestAlignments.numSegments();
+  
+
+  for (unsigned int l3=0, n=lengths_all_languages.size(); l3<n; l3+=1) {
+    if (! bestAlignments.contains(languages[l3])) {
+      std::vector<unsigned int> dimMax { segmentsInBestAlignment, (unsigned int) lengths_all_languages[l3].size()-1 };
+      Coordinate current(dimMax), previous(dimMax);
+
+      do {
+
+	current.increment();
+	
+	if (previous.resetToEarliestPredecessorOf(current)) {
+
+	  do {
+
+	    //	    gale_and_church.calculate(current, previous);
+
+	    previous.increment();
+
+	  } while (previous.canIncrement());
+
+	}
+  
+      } while (current.canIncrement());
+
+
+
+    }
+  }
+
 }
 
 SentenceAlignments SentenceAligner::alignFullDP(std::vector< std::vector<unsigned int> > lengths_all_languages, std::vector<std::string> languages) {
@@ -54,7 +86,7 @@ SentenceAlignments SentenceAligner::alignFullDP(std::vector< std::vector<unsigne
     std::cerr << "} = " << total << std::endl;
   }
 
-  Costs gale_and_church(lengths_all_languages, languages);
+  Costs gale_and_church(languages);
 
 
   unsigned int counter = 0;
@@ -76,7 +108,29 @@ SentenceAlignments SentenceAligner::alignFullDP(std::vector< std::vector<unsigne
 
       do {
 
-	gale_and_church.calculate(current, previous);
+	double cost = gale_and_church.get(previous);
+
+
+	for (std::pair<unsigned int, unsigned int> dimensions : Dimensions(gale_and_church.dimensions())) {
+            
+	  Alignment::Type alignment = 
+	    Alignment::determine(current.valueAt(dimensions.first),  current.valueAt(dimensions.second),
+				 previous.valueAt(dimensions.first), previous.valueAt(dimensions.second));
+
+	  int penalty_value = Distance::penalty(alignment);
+
+	  int match_value = gale_and_church.twoDimensionalMatchCost(alignment,
+						    current.valueAt(dimensions.first), 
+						    lengths_all_languages[dimensions.first],
+						    current.valueAt(dimensions.second),
+						    lengths_all_languages[dimensions.second]);
+
+	  cost += penalty_value + match_value;
+    
+	} 
+  
+	gale_and_church.set(current, previous, cost);
+
 
 	previous.increment();
 
