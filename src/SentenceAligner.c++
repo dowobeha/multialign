@@ -8,28 +8,41 @@
 #include "SentenceAlignments.h++"
 
 
-void SentenceAligner::alignPartialDP(std::vector< std::vector<unsigned int> > lengths_all_languages) {
+void SentenceAligner::alignPartialDP(std::vector< std::vector<unsigned int> > lengths_all_languages, std::vector<std::string> languages) {
 
-  
+  SentenceAlignments bestAlignments;
 
   for (unsigned int l1=0, n=lengths_all_languages.size(); l1<n; l1+=1) {
     for (unsigned int l2=l1+1; l2<n; l2+=1) {
 
-      auto alignment = 
-	SentenceAligner::alignFullDP(std::vector< std::vector<unsigned int > >{
-	    lengths_all_languages[l1],
-            lengths_all_languages[l2]});
+      auto alignments = 
+	SentenceAligner::alignFullDP(
+	    std::vector< std::vector<unsigned int > >{
+	      lengths_all_languages[l1],
+	      lengths_all_languages[l2]},
+	    std::vector<std::string>{
+	      languages[l1],
+	      languages[l2]}
+	    );
 
-      std::cerr << "2-dimensional alignment for languages " << l1 << " and " << l2 << " has cost " << alignment.cost << std::endl;
+      std::cerr << "2-dimensional alignment for languages " << languages[l1] << " and " << languages[l2] << " has cost " << alignments.cost << std::endl;
+
+      if (alignments.cost < bestAlignments.cost) {
+	bestAlignments = alignments;
+      }
 
     }
   }
 
-
+  std::cerr << "Best 2-dimensional alignment is for languages ( ";
+  for (const auto &keyValue : bestAlignments.values) {
+    std::cerr << keyValue.first << " ";
+  }
+  std::cerr << ") with cost " << bestAlignments.cost << std::endl;
 
 }
 
-SentenceAlignments SentenceAligner::alignFullDP(std::vector< std::vector<unsigned int> > lengths_all_languages) {
+SentenceAlignments SentenceAligner::alignFullDP(std::vector< std::vector<unsigned int> > lengths_all_languages, std::vector<std::string> languages) {
 
   {
     unsigned int total = 1;
@@ -41,7 +54,7 @@ SentenceAlignments SentenceAligner::alignFullDP(std::vector< std::vector<unsigne
     std::cerr << "} = " << total << std::endl;
   }
 
-  Costs gale_and_church(lengths_all_languages);
+  Costs gale_and_church(lengths_all_languages, languages);
 
 
   unsigned int counter = 0;
@@ -74,7 +87,7 @@ SentenceAlignments SentenceAligner::alignFullDP(std::vector< std::vector<unsigne
 
   } while (current.canIncrement());
 
-  return SentenceAlignments{gale_and_church.backtrace(), gale_and_church.get(current).cost};
+  return SentenceAlignments{gale_and_church};
 
 }
 
@@ -94,8 +107,8 @@ void SentenceAligner::print(SentenceAlignments alignments, std::vector<std::stri
 
   for (unsigned int l=0, n=languages.size(); l<n; l+=1) {
     std::cerr << languages[l] << "\t";
-    for (unsigned int a=0, m=alignments.value[l].size(); a<m; a+=1) {
-      std::cerr << alignments.value[l][a] << " ";
+    for (unsigned int a=0, m=alignments.values[languages[l]].size(); a<m; a+=1) {
+      std::cerr << alignments.values[languages[l]][a] << " ";
     }
     std::cerr << std::endl;
   }
@@ -103,8 +116,8 @@ void SentenceAligner::print(SentenceAlignments alignments, std::vector<std::stri
   for (unsigned int l=0, n=languages.size(); l<n; l+=1) {
     counts.push_back(std::vector<unsigned int>());
     unsigned int counter = 0;
-    for (unsigned int a=0, m=alignments.value[l].size(); a<m; a+=1) {
-      if (alignments.value[l][a] < 0) {
+    for (unsigned int a=0, m=alignments.values[languages[l]].size(); a<m; a+=1) {
+      if (alignments.values[languages[l]][a] < 0) {
 	counts[l].push_back(counter);
 	counter = 0;
       } else {

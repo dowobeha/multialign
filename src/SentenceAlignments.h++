@@ -1,15 +1,21 @@
 #pragma once
 
+#include <limits>
+#include <string>
 #include <vector>
+
+#include "Costs.h++"
 
 class SentenceAlignments {
 
 public:
 
-  const std::vector< std::vector< int > > value;
-  const double cost;
+  std::map< std::string, std::vector< int > > values;
+  double cost;
 
-  SentenceAlignments(std::vector< std::vector< int > > value, double cost) : 
-    value{value}, cost{cost} {}
+  SentenceAlignments() : values{}, cost{std::numeric_limits<double>::max()} {}
+
+  SentenceAlignments(Costs costs) : 
+    values{costs.backtrace()}, cost{costs.cost()} {}
 
 };

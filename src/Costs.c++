@@ -26,14 +26,11 @@ Cost Costs::get(Coordinate c) const {
 
 void Costs::calculate(Coordinate current, Coordinate previous) {
 
-  //  std::cerr << "Calculating cost for " << previous << " -> " << current << std::endl;
-
   double cost; {
     auto search = costs.find(previous);
     if (search != costs.end()) {
       cost = search->second.cost;
     } else {
-      //      std::cerr << "Previous cost == 0.0 for previous coordinate " << previous << std::endl;
       cost = 0.0;
     }
   }
@@ -58,7 +55,6 @@ void Costs::calculate(Coordinate current, Coordinate previous) {
     // Define a local lambda function with reference access to all local variables
     auto match = [&](int x1, int y1, int x2, int y2) {
       match_value = distance.match(x1+x2, y1+y2);
-      //      fprintf(stderr, "%s\tdistance(x1=%d, y1=%d, x2=%d, y2=%d) = %d = match_value (%d) + penalty_value (%d)", operation.c_str(), x1, y1, x2, y2, (match_value+penalty_value), match_value, penalty_value);    std::cerr << "\t" << previous << " -> " << current << std::endl;
     };
 
     
@@ -97,11 +93,9 @@ void Costs::calculate(Coordinate current, Coordinate previous) {
     case Alignment::Type::Equal:
       operation   = "equal";
       match_value = 0;
-      //      std::cerr << "equal\tdistance=0\t" << previous << " -> " << current << std::endl;
       break;
   
     case Alignment::Type::Invalid:
-      //      std::cerr << "invalid\tdistance=infinite\t" << previous << " -> " << current << std::endl;
       return;
       
     }
@@ -110,108 +104,68 @@ void Costs::calculate(Coordinate current, Coordinate previous) {
     
   } 
   
-  //  std::cerr << "Cost for " << previous << " -> " << current << " should now be " << cost << std::endl;
 
   std::map<Coordinate, Cost>::iterator search = costs.find(current);
 
-  
 
   if (search == costs.end()) {
 
     // Associate the new cost with the current point
-    //    std::cerr << "A) Old best cost NONE to " << current << std::endl;
     costs.emplace(current, Cost(previous, cost));
-    //    std::cerr << "B) New best cost " << cost << " from " << previous << " to " << current << std::endl;
-    //    std::cerr << "C) New best cost " << get(current).cost << " from " << get(current).previous << " to " << current << std::endl;
 
   } else if ( cost < search->second.cost) {
-    //    std::cerr << "A) Old best cost " << get(current).cost << " from " << get(current).previous << " to " << current << std::endl;
-    //    std::cout << "W) costs.size()==" << costs.size() << " " << (costs.find(current)==costs.end()) << "\t" << std::endl;
+
     costs.erase(current);
-    //    std::cout << "X) costs.size()==" << costs.size() << " " << (costs.find(current)==costs.end()) << "\t" << std::endl;
     costs.emplace(current, Cost(previous, cost));
-    //    std::cout << "Y) costs.size()==" << costs.size() << " " << (costs.find(current)==costs.end()) << "\t" << std::endl;
-    //    std::cerr << "B) New best cost " << cost << " from " << previous << " to " << current << std::endl;
-    //    std::cerr << "C) New best cost " << get(current).cost << " from " << get(current).previous << " to " << current << std::endl;
 
   } 
-  //else {
-    // print out old and new
-  //    std::cerr << "A) Old best cost " << get(current).cost << " from " << get(current).previous << " to " << current << std::endl;
-  //    std::cerr << "B) New worse cost " << cost << " from " << previous << " to " << current << std::endl;
-  //  }
-
-  
 
 }
 
-std::vector< std::vector< int > > Costs::backtrace() const {
-//  std::cerr << "Backtrace..." << std::endl;
+double Costs::cost() const {
+  return costs.rbegin()->second.cost;
+}
+
+std::map< std::string, std::vector< int > > Costs::backtrace() const {
 
   std::vector< std::pair<Coordinate,Cost> > backtrace;
 
   std::function<void(Coordinate)> recursivelyBuildBacktrace = [&](Coordinate c) {
-    //    std::cerr << "recursivelyBuildBacktrace(" << c << ")" << std::endl;
+
     auto search = costs.find(c);
     if (search != costs.end()) {
-      //backtrace.insert(backtrace.begin(), *search);
+
       backtrace.push_back(*search);
       recursivelyBuildBacktrace(search->second.previous);
     } 
-    //    else {
-    //      std::cerr << "During backtrace, couldn't find " << c << std::endl;
-    //    }
+
   };
 
-  //  std::cerr << "costs.size()==" << costs.size() << std::endl;
 
   recursivelyBuildBacktrace(costs.rbegin()->first);
-  //  std::reverse(backtrace.begin(),backtrace.end());
 
-
-//  std::cerr << std::endl << "Backtrace..." << std::endl;
-
-//  for (auto search : backtrace) {
-//    auto cost = search.second;
-//    std::cerr << cost.previous << " -> " << search.first << " (" << cost.cost << ")" << std::endl;
-//  }
-
-//  std::cerr << std::endl;
-
-  //  for (auto search : backtrace) {
-  std::vector< std::vector<int> > results;
+  //  std::vector< std::vector<int> > results;
+  std::map< std::string, std::vector<int> > results;
   for (unsigned int d=0, max=dimensions(); d<max; d+=1) {
-    results.push_back(std::vector<int>());
+    results[languages[d]] = std::vector<int>();
   }
 
   for (auto i=backtrace.rbegin(), end=backtrace.rend(); i<end; ++i) {
     auto search=*i;
     auto cost = search.second;
     auto current = search.first;
-    //    std::cerr << cost.previous << " -> " << current << " (" << cost.cost << ")" << std::endl;
-/*
-    bool noUnalignedSentences=true;
+
     for (unsigned int d=0, max=dimensions(); d<max; d+=1) {
-      if (current.valueAt(d) == cost.previous.valueAt(d)) {
-	noUnalignedSentences = false;
-	break;
-      }
-    }
 
-    if (noUnalignedSentences) {
-*/
-      for (unsigned int d=0, max=dimensions(); d<max; d+=1) {
-
-	std::cerr << "Dimension " << d << ":\t";
-	for (auto i1=cost.previous.valueAt(d)+1, i2 = current.valueAt(d); i1<=i2; i1+=1) {
-	  std::cerr << "txt["<<d<<"]["<<i1<<"]" << " ";
-	  results[d].push_back(i1);
-	}
-	results[d].push_back(-1);
-	std::cerr << std::endl;
+      std::cerr << "Dimension " << d << ":\t";
+      for (auto i1=cost.previous.valueAt(d)+1, i2 = current.valueAt(d); i1<=i2; i1+=1) {
+	std::cerr << "txt["<<d<<"]["<<i1<<"]" << " ";
+	results[languages[d]].push_back(i1);
       }
+      results[languages[d]].push_back(-1);
+      std::cerr << std::endl;
     }
-  //  }
-  //std::cerr << "(Costs.c++:backtrace()\tDone" << std::endl;
+  }
+  
   return results;
 }
