@@ -6,6 +6,8 @@
 #include "Coordinates.h++"
 #include "SentenceAligner.h++"
 
+#include "util.h"
+
 const std::string Europarl::chapter_pattern = R"(^<CHAPTER ID=\"?(\d+)\"?.*)";
 const std::regex Europarl::chapter_regex{chapter_pattern};
   
@@ -189,7 +191,7 @@ void Europarl::align() {
 	      lengths_this_language.push_back(0);
 	      std::cerr << "Lengths for " << language << ":\t[ ";
 	      for (auto sentence : paragraphs[language][paragraph_index]) {
-		lengths_this_language.push_back(sentence.size());
+		lengths_this_language.push_back(utf8_codepoints(sentence));
 	      }
 	      for (auto length : lengths_this_language) {
 		std::cerr << length << " ";
