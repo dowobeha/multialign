@@ -198,12 +198,14 @@ void Europarl::align() {
 	      lengths_all_languages.push_back(lengths_this_language);
 	    }
 
+	    SentenceAligner::alignPartialDP(lengths_all_languages);
+
 	    auto alignments = SentenceAligner::alignFullDP(lengths_all_languages);
 	    SentenceAligner::print(alignments, languages);
 
 	    for (unsigned int l=0, n=languages.size(); l<n; l+=1) {
 	      std::cerr << languages[l] << "\t";
-	      for (auto value : alignments[l]) {
+	      for (auto value : alignments.value[l]) {
 
 		if (value < 0) {
 		  *(out[languages[l]]) << std::endl;

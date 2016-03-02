@@ -5,8 +5,31 @@
 #include "Coordinate.h++"
 #include "Coordinates.h++"
 #include "SentenceAligner.h++"
+#include "SentenceAlignments.h++"
 
-std::vector< std::vector< int > > SentenceAligner::alignFullDP(std::vector< std::vector<unsigned int> > lengths_all_languages) {
+
+void SentenceAligner::alignPartialDP(std::vector< std::vector<unsigned int> > lengths_all_languages) {
+
+  
+
+  for (unsigned int l1=0, n=lengths_all_languages.size(); l1<n; l1+=1) {
+    for (unsigned int l2=l1+1; l2<n; l2+=1) {
+
+      auto alignment = 
+	SentenceAligner::alignFullDP(std::vector< std::vector<unsigned int > >{
+	    lengths_all_languages[l1],
+            lengths_all_languages[l2]});
+
+      std::cerr << "2-dimensional alignment for languages " << l1 << " and " << l2 << " has cost " << alignment.cost << std::endl;
+
+    }
+  }
+
+
+
+}
+
+SentenceAlignments SentenceAligner::alignFullDP(std::vector< std::vector<unsigned int> > lengths_all_languages) {
 
   {
     unsigned int total = 1;
@@ -51,11 +74,11 @@ std::vector< std::vector< int > > SentenceAligner::alignFullDP(std::vector< std:
 
   } while (current.canIncrement());
 
-  return gale_and_church.backtrace();
+  return SentenceAlignments{gale_and_church.backtrace(), gale_and_church.get(current).cost};
 
 }
 
-void SentenceAligner::print(std::vector< std::vector< int > > alignments, std::vector<std::string> languages) {
+void SentenceAligner::print(SentenceAlignments alignments, std::vector<std::string> languages) {
 
   std::cerr << std::endl;
   std::cerr << std::endl;
@@ -71,8 +94,8 @@ void SentenceAligner::print(std::vector< std::vector< int > > alignments, std::v
 
   for (unsigned int l=0, n=languages.size(); l<n; l+=1) {
     std::cerr << languages[l] << "\t";
-    for (unsigned int a=0, m=alignments[l].size(); a<m; a+=1) {
-      std::cerr << alignments[l][a] << " ";
+    for (unsigned int a=0, m=alignments.value[l].size(); a<m; a+=1) {
+      std::cerr << alignments.value[l][a] << " ";
     }
     std::cerr << std::endl;
   }
@@ -80,8 +103,8 @@ void SentenceAligner::print(std::vector< std::vector< int > > alignments, std::v
   for (unsigned int l=0, n=languages.size(); l<n; l+=1) {
     counts.push_back(std::vector<unsigned int>());
     unsigned int counter = 0;
-    for (unsigned int a=0, m=alignments[l].size(); a<m; a+=1) {
-      if (alignments[l][a] < 0) {
+    for (unsigned int a=0, m=alignments.value[l].size(); a<m; a+=1) {
+      if (alignments.value[l][a] < 0) {
 	counts[l].push_back(counter);
 	counter = 0;
       } else {
