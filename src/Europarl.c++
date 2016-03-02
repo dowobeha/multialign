@@ -4,6 +4,7 @@
 #include <iostream>
 
 #include "Coordinates.h++"
+#include "SentenceAligner.h++"
 
 const std::string Europarl::chapter_pattern = R"(^<CHAPTER ID=\"?(\d+)\"?.*)";
 const std::regex Europarl::chapter_regex{chapter_pattern};
@@ -184,125 +185,9 @@ void Europarl::align() {
 	      lengths_all_languages.push_back(lengths_this_language);
 	    }
 
-	    {
-	      unsigned int total = 1;
-	      std::cerr << "Total number of coordinates to explore = \\prod_{i in";
-	      for (auto lengths : lengths_all_languages) {
-		total *= lengths.size();
-		std::cerr << " " << lengths.size();
-	      }
-	      std::cerr << "} = " << total << std::endl;
-	    }
-	    Costs gale_and_church(lengths_all_languages);
-	    //Coordinates coordinates(gale_and_church);
+	    auto alignments = SentenceAligner::alignFullDP(lengths_all_languages);
+	    SentenceAligner::print(alignments, languages);
 
-	    unsigned int counter = 0;
-
-	    std::vector<unsigned int> dimMax = 
-	      Coordinates::calculateDimensionalMaxima(lengths_all_languages);
-
-
-	    Coordinate current(dimMax), previous(dimMax); 
-
-	    	    std::cerr << "\r" << (++counter) << "\t" << current;
-	    do {
-	      //	      std::cerr << "Incrementing current from " << current;
-	      current.increment();
-	      //	      std::cerr << " to " << current << std::endl;
-	      std::cerr << "\r" << (++counter) << "\t" << current;
-
-	      if (previous.resetToEarliestPredecessorOf(current)) {
-
-		do {
-
-		  gale_and_church.calculate(current, previous);
-
-		  previous.increment();
-
-		} while (previous.canIncrement());
-
-	      }
-  
-
-	    } while (current.canIncrement());
-	    std::cerr << std::endl;
-	    /*
-	    for (
-		 current.canIncrement(); current.increment()) {
-	    
-	      //std::cerr << "Current:\t" << current;
-	      
-	      //	      if (counter > 3000) exit(1);
-	      if (previous.resetToEarliestPredecessorOf(current)) {
-
-		//std::cerr << "\tPrevious:\t" << previous << std::endl;
-
-		for ( ; previous.canIncrement(); previous.increment() ) {
-		  
-       
-		  gale_and_church.calculate(current, previous);
-		  //		  std::cerr << previous << " -> " << current << std::endl;
-		}
-
-	      } else {
-		//std::cerr << "\tPrevious:\tNone" << std::endl;
-	      }
-
-	    }
-	    */
-	    std::cerr << std::endl;
-	    //	    exit(1);
-	    /*
-	    for (Coordinate x : coordinates) {
-	      //	      if (counter > 1) exit(1);
-	      
-	      for (Coordinate y : x.possiblePredecessors()) {
-		gale_and_church.calculate(x, y);
-	      }
-	    }
-	    std::cout << std::endl;
-	    */
-	    std::vector< std::vector<std::string> > text;
-	    for (auto language : languages) {
-	      text.push_back(paragraphs[language][paragraph_index]);
-	      //std::cerr << language << "\t" << language << "\t" << paragraphs[language][paragraph_index] << std::endl;
-	      // for (auto x : paragraphs[language][paragraph_index]) {
-	      //std::cerr << language << "\t" << language << "\t" << (x) << std::endl;
-	      //}
-	    }
-
-	    //std::cerr << "gale_and_church.backtrace() begin" << std::endl;
-	    auto alignments = gale_and_church.backtrace();
-	    for (unsigned int l=0, n=languages.size(); l<n; l+=1) {
-	      std::cerr << languages[l] << "\t";
-	      for (unsigned int a=0, m=alignments[l].size(); a<m; a+=1) {
-		std::cerr << alignments[l][a] << " ";
-	      }
-	      std::cerr << std::endl;
-	    }
-	    std::vector< std::vector<unsigned int> > counts;
-	    for (unsigned int l=0, n=languages.size(); l<n; l+=1) {
-	      counts.push_back(std::vector<unsigned int>());
-	      unsigned int counter = 0;
-	      for (unsigned int a=0, m=alignments[l].size(); a<m; a+=1) {
-		if (alignments[l][a] < 0) {
-		  counts[l].push_back(counter);
-		  counter = 0;
-		} else {
-		  counter += 1;
-		}
-	      }
-	    }
-	    for (unsigned int j=0, p=counts[0].size(); j<p; j+=1) {
-	      for (unsigned int l=0, n=languages.size(); l<n; l+=1) {
-		std::cout << counts[l][j];
-		if (l+1<n) {
-		  std::cout << ':';
-		} else {
-		  std::cout << std::endl;
-		}
-	      }
-	    }
 	    //std::cerr << "gale_and_church.backtrace() return" << std::endl;
 	    for (unsigned int l=0, n=languages.size(); l<n; l+=1) {
 	      std::cerr << languages[l] << "\t";
@@ -322,6 +207,7 @@ void Europarl::align() {
 		}
 	      } std::cerr << std::endl;
 	    }
+
 	    //exit(1);
 	    //std::cerr << "gale_and_church.backtrace() complete" << std::endl;
 	  }

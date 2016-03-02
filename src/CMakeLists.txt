@@ -10,7 +10,7 @@ else()
 endif()
 
 add_definitions(-pg)
-add_executable(align align.c++ util.c++ Alignment.c++ Coordinate.c++ Coordinates.c++ Costs.c++ Dimensions.c++ DimensionsIterator.c++ Distance.c++ Europarl.c++)
+add_executable(align align.c++ util.c++ Alignment.c++ Coordinate.c++ Coordinates.c++ Costs.c++ Dimensions.c++ DimensionsIterator.c++ Distance.c++ Europarl.c++ SentenceAligner.c++)
 
 add_executable(multextEast multext.c++ util.c++  MultextEast.c++)
 
