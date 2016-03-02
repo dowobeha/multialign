@@ -37,7 +37,7 @@ private:
   std::map< std::string, std::vector<std::string> > txt;
   std::map< std::string, unsigned int> size;
   std::map< std::string, unsigned int> index;
-  //  std::map< std::string, std::unique_ptr<std::ofstream, EuroparlFileDeleter> > out;
+
   std::map< std::string, std::unique_ptr<std::ofstream, std::function<void(std::ofstream *)> > > out;
   std::map< std::string, unsigned int > chapter;
   std::map< std::string, unsigned int > speaker;
