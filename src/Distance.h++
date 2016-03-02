@@ -2,6 +2,8 @@
 
 #include "Alignment.h++"
 
+#include <vector>
+
 class Distance {
 
 private:
@@ -20,6 +22,9 @@ public:
   static int penalty(Alignment::Type type);
   static int match(int len1, int len2);
   static int maxCost() { return BIG_DISTANCE; }
-  //  int two_side_distance(Alignment::Type type);
+
+  static double twoDimensionalMatchCost(Alignment::Type alignment,
+					unsigned int i, const std::vector<unsigned int>& x,
+					unsigned int j, const std::vector<unsigned int>& y);
 
 };

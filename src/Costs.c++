@@ -26,59 +26,6 @@ double Costs::get(Coordinate c) const {
   
 }
 
-double Costs::twoDimensionalMatchCost(Alignment::Type alignment,
-				      unsigned int i, const std::vector<unsigned int>& x,
-				      unsigned int j, const std::vector<unsigned int>& y) const {
-
-  int match_value;
-
-  // Define a local lambda function with reference access to all local variables
-  auto match = [&](int x1, int y1, int x2, int y2) {
-    match_value = distance.match(x1+x2, y1+y2);
-  };
-
-    
-  switch(alignment) {
-      
-  case Alignment::Type::Substitution: 
-    match(x[i], y[j], 0, 0);
-    break;
-      
-  case Alignment::Type::Deletion:
-    match(x[i], 0, 0, 0);
-    break;
-      
-  case Alignment::Type::Insertion:
-    match(0, y[j], 0, 0);
-    break;
-      
-  case Alignment::Type::Contraction:
-    match(x[i-1], y[j], x[i], 0);
-    break;
-      
-  case Alignment::Type::Expansion:
-    match(x[i], y[j-1], 0, y[j]);
-    break;
-            
-  case Alignment::Type::Melding:
-    match(x[i-1], y[j-1], x[i], y[j]);
-    break;
-
-  case Alignment::Type::Equal:
-    match_value = 0;
-    break;
-  
-  case Alignment::Type::Invalid:
-  default:
-    match_value = distance.maxCost();
-    break;
-      
-  }
-
-  return match_value;
-
-}
-
 void Costs::set(Coordinate current, Coordinate previous, double cost) {
 
   std::map<Coordinate, Cost>::iterator search = costs.find(current);

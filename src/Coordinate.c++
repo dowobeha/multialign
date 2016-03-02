@@ -1,3 +1,4 @@
+#include "Alignment.h++"
 #include "Coordinate.h++"
 #include "Coordinates.h++"
 #include "Dimensions.h++"

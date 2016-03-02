@@ -5,15 +5,12 @@
 #include <vector>
 
 #include "Cost.h++"
-#include "Distance.h++"
 
 class Costs {
 
 private:
 
   std::map<Coordinate, Cost> costs;
-
-  Distance distance;
 
   std::vector<std::string> languages;
 
@@ -32,10 +29,6 @@ public:
   std::map< std::string, std::vector< int > > backtrace() const;
 
   double cost() const;
-
-  double twoDimensionalMatchCost(Alignment::Type alignment,
-				 unsigned int i, const std::vector<unsigned int>& x,
-				 unsigned int j, const std::vector<unsigned int>& y) const;
 
 };
 

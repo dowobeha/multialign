@@ -1,10 +1,12 @@
 #include <iostream>
 #include <vector>
 
+#include "Alignment.h++"
 #include "Costs.h++"
 #include "Coordinate.h++"
 #include "Coordinates.h++"
 #include "Dimensions.h++"
+#include "Distance.h++"
 #include "SentenceAligner.h++"
 #include "SentenceAlignments.h++"
 
@@ -119,7 +121,7 @@ SentenceAlignments SentenceAligner::alignFullDP(std::vector< std::vector<unsigne
 
 	  int penalty_value = Distance::penalty(alignment);
 
-	  int match_value = gale_and_church.twoDimensionalMatchCost(alignment,
+	  int match_value = Distance::twoDimensionalMatchCost(alignment,
 						    current.valueAt(dimensions.first), 
 						    lengths_all_languages[dimensions.first],
 						    current.valueAt(dimensions.second),
