@@ -6,7 +6,7 @@
 
 #include "Cost.h++"
 
-class Costs {
+class DynamicProgrammingTable {
 
 private:
 
@@ -16,7 +16,7 @@ private:
 
 public:
 
-  Costs(std::vector<std::string> languages) : languages(languages) {}
+  DynamicProgrammingTable(std::vector<std::string> languages) : languages(languages) {}
 
 
 

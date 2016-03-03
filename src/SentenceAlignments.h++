@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-#include "Costs.h++"
+#include "DynamicProgrammingTable.h++"
 
 class SentenceAlignments {
 
@@ -15,7 +15,7 @@ public:
 
   SentenceAlignments() : values{}, cost{std::numeric_limits<double>::max()} {}
 
-  SentenceAlignments(Costs costs) : 
+  SentenceAlignments(DynamicProgrammingTable costs) : 
     values{costs.backtrace()}, cost{costs.cost()} {}
 
   bool contains(std::string language) {

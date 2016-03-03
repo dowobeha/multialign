@@ -1,4 +1,4 @@
-#include "Costs.h++"
+#include "DynamicProgrammingTable.h++"
 
 #include <iostream>
 #include <functional>
@@ -9,11 +9,11 @@
 #include "Cost.h++"
 
 
-unsigned int Costs::dimensions() const {
+unsigned int DynamicProgrammingTable::dimensions() const {
   return languages.size();
 }
 
-double Costs::get(Coordinate c) const {
+double DynamicProgrammingTable::get(Coordinate c) const {
     
   auto search = costs.find(c);
 
@@ -25,7 +25,7 @@ double Costs::get(Coordinate c) const {
   
 }
 
-void Costs::set(Coordinate current, Coordinate previous, double cost) {
+void DynamicProgrammingTable::set(Coordinate current, Coordinate previous, double cost) {
 
   std::map<Coordinate, Cost>::iterator search = costs.find(current);
 
@@ -43,11 +43,11 @@ void Costs::set(Coordinate current, Coordinate previous, double cost) {
 
 }
 
-double Costs::cost() const {
+double DynamicProgrammingTable::cost() const {
   return costs.rbegin()->second.cost;
 }
 
-std::map< std::string, std::vector< int > > Costs::backtrace() const {
+std::map< std::string, std::vector< int > > DynamicProgrammingTable::backtrace() const {
 
   std::vector< std::pair<Coordinate,Cost> > backtrace;
 

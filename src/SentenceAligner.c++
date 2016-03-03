@@ -2,7 +2,7 @@
 #include <vector>
 
 #include "Alignment.h++"
-#include "Costs.h++"
+#include "DynamicProgrammingTable.h++"
 #include "Coordinate.h++"
 #include "Coordinates.h++"
 #include "Dimensions.h++"
@@ -88,7 +88,7 @@ SentenceAlignments SentenceAligner::alignFullDP(std::vector< std::vector<unsigne
     std::cerr << "} = " << total << std::endl;
   }
 
-  Costs gale_and_church(languages);
+  DynamicProgrammingTable gale_and_church(languages);
 
 
   unsigned int counter = 0;

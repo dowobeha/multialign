@@ -11,7 +11,7 @@
 #include "Coordinate.h++"
 #include "Coordinates.h++"
 #include "Cost.h++"
-#include "Costs.h++"
+#include "DynamicProgrammingTable.h++"
 #include "Dimensions.h++"
 #include "Europarl.h++"
 
@@ -248,7 +248,7 @@ int main2 () {
   lengths.push_back(std::vector<unsigned int>{30});
   lengths.push_back(std::vector<unsigned int>{24});
 
-  Costs costs(lengths);
+  DynamicProgrammingTable costs(lengths);
   Coordinates coordinates(costs);
 
   for (Coordinate x : coordinates) {
