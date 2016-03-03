@@ -1,5 +1,7 @@
 #pragma once
 
+#include <fstream>
+#include <ostream>
 #include <limits>
 #include <string>
 #include <vector>
@@ -8,30 +10,30 @@
 
 class SentenceAlignments {
 
-public:
+private:
 
   std::map< std::string, std::vector< int > > values;
+
   double cost;
 
-  SentenceAlignments() : values{}, cost{std::numeric_limits<double>::max()} {}
-
-  SentenceAlignments(DynamicProgrammingTable costs) : 
-    values{costs.backtrace()}, cost{costs.cost()} {}
-
-  bool contains(std::string language) {
-    return values.find(language) == values.end();
-  }
-
-  unsigned int numSegments() const {
-    unsigned int count = 0;
   
-    for (auto value : values.begin()->second) {
-      if (value < 0) {
-	count += 1;
-      }
-    }
+public:
 
-    return count;
-  }
+
+  SentenceAlignments();
+
+  SentenceAlignments(DynamicProgrammingTable costs);
+
+  bool contains(std::string language);
+
+  std::string languages() const;
+
+  unsigned int numSegments() const;
+
+  double getCost() const;
+
+  friend std::ostream& operator<<(std::ostream& os, const SentenceAlignments& s);
+
+  void writeToFile(std::ofstream& ofs, const std::string& language, std::vector<std::string>& sentences);
 
 };

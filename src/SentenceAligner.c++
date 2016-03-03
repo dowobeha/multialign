@@ -28,28 +28,33 @@ void SentenceAligner::alignPartialDP(std::vector< std::vector<unsigned int> > le
 	      languages[l2]}
 	    );
 
-      std::cerr << "2-dimensional alignment for languages " << languages[l1] << " and " << languages[l2] << " has cost " << alignments.cost << std::endl;
+      std::cerr << "2-dimensional alignment for languages " << languages[l1] << " and " << languages[l2] << " has cost " << alignments.getCost() << std::endl;
 
-      if (alignments.cost < bestAlignments.cost) {
+      if (alignments.getCost() < bestAlignments.getCost()) {
 	bestAlignments = alignments;
       }
 
     }
   }
 
-  std::cerr << "Best 2-dimensional alignment is for languages ( ";
-  for (const auto &keyValue : bestAlignments.values) {
-    std::cerr << keyValue.first << " ";
-  }
-  std::cerr << ") with cost " << bestAlignments.cost << std::endl;
+  std::cerr << "Best 2-dimensional alignment is for languages ( " 
+	    << bestAlignments.languages()  
+	    << ") with cost " 
+	    << bestAlignments.getCost() 
+	    << std::endl;
 
   unsigned int segmentsInBestAlignment = bestAlignments.numSegments();
   
 
   for (unsigned int l3=0, n=lengths_all_languages.size(); l3<n; l3+=1) {
     if (! bestAlignments.contains(languages[l3])) {
+
       std::vector<unsigned int> dimMax { segmentsInBestAlignment, (unsigned int) lengths_all_languages[l3].size()-1 };
       Coordinate current(dimMax), previous(dimMax);
+
+      std::vector<std::string> currentLanguages{bestAlignments.languages(), languages[l3]};
+
+      DynamicProgrammingTable dynamicProgrammingTable(currentLanguages);
 
       do {
 
@@ -59,7 +64,31 @@ void SentenceAligner::alignPartialDP(std::vector< std::vector<unsigned int> > le
 
 	  do {
 
-	    //	    gale_and_church.calculate(current, previous);
+	    double cost = dynamicProgrammingTable.get(previous);
+
+	    std::pair<unsigned int, unsigned int> dimensions{0,1};
+
+	    // Calculate the alignment between 
+	    //  - elements (tuples of previously aligned sentences) in the existing best alignment (of the previously aligned languages)
+	    //  - sentences in language l3                            
+	    Alignment::Type alignment = 
+	      Alignment::determine(current.valueAt(dimensions.first),  current.valueAt(dimensions.second),
+				   previous.valueAt(dimensions.first), previous.valueAt(dimensions.second));
+
+	    int penalty_value = Gale_and_Church_1993::penalty(alignment);
+	    
+	    int match_value = Gale_and_Church_1993::twoDimensionalMatchCost(alignment,
+									    current.valueAt(dimensions.first), 
+									    lengths_all_languages[dimensions.first],
+									    current.valueAt(dimensions.second),
+									    lengths_all_languages[dimensions.second]);
+	    
+	    cost += penalty_value + match_value;
+	    
+	   
+  
+	    dynamicProgrammingTable.set(current, previous, cost);
+	    //	    dynamicProgrammingTable.calculate(current, previous);
 
 	    previous.increment();
 
@@ -88,7 +117,7 @@ SentenceAlignments SentenceAligner::alignFullDP(std::vector< std::vector<unsigne
     std::cerr << "} = " << total << std::endl;
   }
 
-  DynamicProgrammingTable gale_and_church(languages);
+  DynamicProgrammingTable dynamicProgrammingTable(languages);
 
 
   unsigned int counter = 0;
@@ -110,10 +139,10 @@ SentenceAlignments SentenceAligner::alignFullDP(std::vector< std::vector<unsigne
 
       do {
 
-	double cost = gale_and_church.get(previous);
+	double cost = dynamicProgrammingTable.get(previous);
 
 
-	for (std::pair<unsigned int, unsigned int> dimensions : Dimensions(gale_and_church.dimensions())) {
+	for (std::pair<unsigned int, unsigned int> dimensions : Dimensions(dynamicProgrammingTable.dimensions())) {
             
 	  Alignment::Type alignment = 
 	    Alignment::determine(current.valueAt(dimensions.first),  current.valueAt(dimensions.second),
@@ -131,7 +160,7 @@ SentenceAlignments SentenceAligner::alignFullDP(std::vector< std::vector<unsigne
     
 	} 
   
-	gale_and_church.set(current, previous, cost);
+	dynamicProgrammingTable.set(current, previous, cost);
 
 
 	previous.increment();
@@ -143,54 +172,6 @@ SentenceAlignments SentenceAligner::alignFullDP(std::vector< std::vector<unsigne
 
   } while (current.canIncrement());
 
-  return SentenceAlignments{gale_and_church};
-
-}
-
-void SentenceAligner::print(SentenceAlignments alignments, std::vector<std::string> languages) {
-
-  std::cerr << std::endl;
-  std::cerr << std::endl;
-
-  /*
-    std::vector< std::vector<std::string> > text;
-    for (auto language : languages) {
-    text.push_back(paragraphs[language][paragraph_index]);
-    }
-  */
-
-  //std::cerr << "gale_and_church.backtrace() begin" << std::endl;
-
-  for (unsigned int l=0, n=languages.size(); l<n; l+=1) {
-    std::cerr << languages[l] << "\t";
-    for (unsigned int a=0, m=alignments.values[languages[l]].size(); a<m; a+=1) {
-      std::cerr << alignments.values[languages[l]][a] << " ";
-    }
-    std::cerr << std::endl;
-  }
-  std::vector< std::vector<unsigned int> > counts;
-  for (unsigned int l=0, n=languages.size(); l<n; l+=1) {
-    counts.push_back(std::vector<unsigned int>());
-    unsigned int counter = 0;
-    for (unsigned int a=0, m=alignments.values[languages[l]].size(); a<m; a+=1) {
-      if (alignments.values[languages[l]][a] < 0) {
-	counts[l].push_back(counter);
-	counter = 0;
-      } else {
-	counter += 1;
-      }
-    }
-  }
-  for (unsigned int j=0, p=counts[0].size(); j<p; j+=1) {
-    for (unsigned int l=0, n=languages.size(); l<n; l+=1) {
-      std::cout << counts[l][j];
-      if (l+1<n) {
-	std::cout << ':';
-      } else {
-	std::cout << std::endl;
-      }
-    }
-  }
-
+  return SentenceAlignments{dynamicProgrammingTable};
 
 }

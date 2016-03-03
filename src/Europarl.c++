@@ -203,21 +203,17 @@ void Europarl::align() {
 	    SentenceAligner::alignPartialDP(lengths_all_languages, languages);
 
 	    auto alignments = SentenceAligner::alignFullDP(lengths_all_languages, languages);
-	    SentenceAligner::print(alignments, languages);
+	    std::cerr << alignments;
 
 	    for (unsigned int l=0, n=languages.size(); l<n; l+=1) {
-	      std::cerr << languages[l] << "\t";
-	      for (auto value : alignments.values[languages[l]]) {
 
-		if (value < 0) {
-		  *(out[languages[l]]) << std::endl;
-		  std::cerr << std::endl << languages[l] << "\t";
-		} else {
-		  *(out[languages[l]]) <<  paragraphs[languages[l]][paragraph_index][value-1];
-		  *(out[languages[l]]) << " ";
-		  std::cerr << paragraphs[languages[l]][paragraph_index][value-1] << " ";
-		}
-	      } std::cerr << std::endl;
+	      std::cerr << languages[l] << "\t";
+
+	      alignments.writeToFile(*(out[languages[l]]), languages[l],
+				     paragraphs[languages[l]][paragraph_index]);
+
+	      std::cerr << std::endl;
+
 	    }
 
 	  }
