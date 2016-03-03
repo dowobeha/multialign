@@ -1,4 +1,4 @@
-#include "Distance.h++"
+#include "Gale_and_Church_1993.h++"
 
 #include <cmath>
 #include <cstdio>
@@ -6,7 +6,7 @@
 
 #include "Alignment.h++"
 
-double Distance::twoDimensionalMatchCost(Alignment::Type alignment,
+double Gale_and_Church_1993::twoDimensionalMatchCost(Alignment::Type alignment,
 				      unsigned int i, const std::vector<unsigned int>& x,
 				      unsigned int j, const std::vector<unsigned int>& y) {
 
@@ -14,7 +14,7 @@ double Distance::twoDimensionalMatchCost(Alignment::Type alignment,
 
   // Define a local lambda function with reference access to all local variables
   auto match = [&](int x1, int y1, int x2, int y2) {
-    match_value = Distance::match(x1+x2, y1+y2);
+    match_value = Gale_and_Church_1993::match(x1+x2, y1+y2);
   };
 
     
@@ -50,7 +50,7 @@ double Distance::twoDimensionalMatchCost(Alignment::Type alignment,
   
   case Alignment::Type::Invalid:
   default:
-    match_value = Distance::maxCost();
+    match_value = Gale_and_Church_1993::maxCost();
     break;
       
   }
@@ -62,7 +62,7 @@ double Distance::twoDimensionalMatchCost(Alignment::Type alignment,
 
 /* Returns the area under a normal distribution
    from -inf to z standard deviations */
-double Distance::pnorm(double z)
+double Gale_and_Church_1993::pnorm(double z)
 {
   double t, pd;
   t = 1/(1 + 0.2316419 * z);
@@ -79,7 +79,7 @@ double Distance::pnorm(double z)
    probability is based on two parameters, the mean and variance of
    number of foreign characters per English character.
 */
-int Distance::match(int len1, int len2)
+int Gale_and_Church_1993::match(int len1, int len2)
 {
   double z, pd, mean;
   double c = 1;
@@ -97,7 +97,7 @@ int Distance::match(int len1, int len2)
   else return(BIG_DISTANCE);
 }
 
-int Distance::penalty(Alignment::Type type) {
+int Gale_and_Church_1993::penalty(Alignment::Type type) {
 
   switch(type) {
       

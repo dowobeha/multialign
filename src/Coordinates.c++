@@ -1,7 +1,5 @@
 #include "Coordinates.h++"
-#include "Costs.h++"
 
-#include <climits>
 #include <vector>
 
 std::vector<unsigned int> Coordinates::calculateDimensionalMaxima(const std::vector< std::vector<unsigned int> >& lengths) {

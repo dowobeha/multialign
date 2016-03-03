@@ -4,7 +4,7 @@
 
 #include <vector>
 
-class Distance {
+class Gale_and_Church_1993 {
 
 private:
 

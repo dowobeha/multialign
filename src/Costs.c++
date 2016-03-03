@@ -8,7 +8,6 @@
 #include "Alignment.h++"
 #include "Cost.h++"
 
-#include "Distance.h++"
 
 unsigned int Costs::dimensions() const {
   return languages.size();

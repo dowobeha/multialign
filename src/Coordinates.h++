@@ -1,8 +1,5 @@
 #pragma once
 
-#include "Coordinate.h++"
-#include "Costs.h++"
-
 #include <vector>
 
 

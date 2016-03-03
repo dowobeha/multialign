@@ -6,7 +6,7 @@
 #include "Coordinate.h++"
 #include "Coordinates.h++"
 #include "Dimensions.h++"
-#include "Distance.h++"
+#include "Gale_and_Church_1993.h++"
 #include "SentenceAligner.h++"
 #include "SentenceAlignments.h++"
 
@@ -119,9 +119,9 @@ SentenceAlignments SentenceAligner::alignFullDP(std::vector< std::vector<unsigne
 	    Alignment::determine(current.valueAt(dimensions.first),  current.valueAt(dimensions.second),
 				 previous.valueAt(dimensions.first), previous.valueAt(dimensions.second));
 
-	  int penalty_value = Distance::penalty(alignment);
+	  int penalty_value = Gale_and_Church_1993::penalty(alignment);
 
-	  int match_value = Distance::twoDimensionalMatchCost(alignment,
+	  int match_value = Gale_and_Church_1993::twoDimensionalMatchCost(alignment,
 						    current.valueAt(dimensions.first), 
 						    lengths_all_languages[dimensions.first],
 						    current.valueAt(dimensions.second),
