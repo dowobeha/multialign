@@ -15,7 +15,7 @@ SentenceAlignments::SentenceAlignments(DynamicProgrammingTable costs) : values{c
 
 
 bool SentenceAlignments::contains(std::string language) {
-  return values.find(language) == values.end();
+  return values.find(language) != values.end();
 }
 
 std::string SentenceAlignments::languages() const {

@@ -1,5 +1,7 @@
 #include "Alignment.h++"
 
+#include <ostream>
+
 Alignment::Type Alignment::determine(unsigned int current_x, unsigned int current_y,
 				     unsigned int previous_x, unsigned int previous_y) {
 
@@ -43,5 +45,48 @@ Alignment::Type Alignment::determine(unsigned int current_x, unsigned int curren
     return Alignment::Type::Invalid;
 
   }
+
+}
+
+std::ostream& operator<<(std::ostream& os, const Alignment::Type& alignment) {
+
+  switch(alignment) {
+      
+  case Alignment::Type::Substitution: 
+    os << "1-1 (Substitution)";
+    break;
+      
+  case Alignment::Type::Deletion:
+    os << "1-0 (Deletion)";
+    break;
+      
+  case Alignment::Type::Insertion:
+    os << "0-1 (Insertion)";
+    break;
+      
+  case Alignment::Type::Contraction:
+    os << "2-1 (Contraction)";
+    break;
+      
+  case Alignment::Type::Expansion:
+    os << "1-2 (Expansion)";
+    break;
+            
+  case Alignment::Type::Melding:
+    os << "2-2 (Melding)";
+    break;
+
+  case Alignment::Type::Equal:
+    os << "0-0 (Equal)";
+    break;
+  
+  case Alignment::Type::Invalid:
+  default:
+    os << "?-? (Invalid)";
+    break;
+      
+  }
+
+  return os;
 
 }

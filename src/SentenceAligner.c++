@@ -10,8 +10,7 @@
 #include "SentenceAligner.h++"
 #include "SentenceAlignments.h++"
 
-
-void SentenceAligner::alignPartialDP(std::vector< std::vector<unsigned int> > lengths_all_languages, std::vector<std::string> languages) {
+SentenceAlignments SentenceAligner::best2DAlignments(std::vector< std::vector<unsigned int> > lengths_all_languages, std::vector<std::string> languages) {
 
   SentenceAlignments bestAlignments;
 
@@ -43,12 +42,22 @@ void SentenceAligner::alignPartialDP(std::vector< std::vector<unsigned int> > le
 	    << bestAlignments.getCost() 
 	    << std::endl;
 
+  return bestAlignments;
+
+}
+
+void SentenceAligner::alignPartialDP(std::vector< std::vector<unsigned int> > lengths_all_languages, std::vector<std::string> languages) {
+
+  SentenceAlignments bestAlignments = best2DAlignments(lengths_all_languages, languages);
+
   unsigned int segmentsInBestAlignment = bestAlignments.numSegments();
   
 
   for (unsigned int l3=0, n=lengths_all_languages.size(); l3<n; l3+=1) {
-    if (! bestAlignments.contains(languages[l3])) {
-
+    if (bestAlignments.contains(languages[l3])) {
+      std::cerr << languages[l3] << "\tskipping" << std::endl;
+    } else {
+      std::cerr << languages[l3] << "\tnot skipping" << std::endl;
       std::vector<unsigned int> dimMax { segmentsInBestAlignment, (unsigned int) lengths_all_languages[l3].size()-1 };
       Coordinate current(dimMax), previous(dimMax);
 
@@ -59,7 +68,8 @@ void SentenceAligner::alignPartialDP(std::vector< std::vector<unsigned int> > le
       do {
 
 	current.increment();
-	
+	std::cerr << languages[l3] << "               " << current << std::endl;
+
 	if (previous.resetToEarliestPredecessorOf(current)) {
 
 	  do {
@@ -69,27 +79,37 @@ void SentenceAligner::alignPartialDP(std::vector< std::vector<unsigned int> > le
 	    std::pair<unsigned int, unsigned int> dimensions{0,1};
 
 	    // Calculate the alignment between 
-	    //  - elements (tuples of previously aligned sentences) in the existing best alignment (of the previously aligned languages)
-	    //  - sentences in language l3                            
+	    //
+	    //  - elements (tuples of previously aligned sentences) 
+	    //      in the existing best alignment (of the previously aligned languages)
+	    //
+	    //  - sentences in language l3
+	    //
 	    Alignment::Type alignment = 
 	      Alignment::determine(current.valueAt(dimensions.first),  current.valueAt(dimensions.second),
 				   previous.valueAt(dimensions.first), previous.valueAt(dimensions.second));
 
-	    int penalty_value = Gale_and_Church_1993::penalty(alignment);
+	    if (alignment != Alignment::Type::Invalid) {
+
+	      std::cerr << languages[l3] << "\t" << previous << " -> " << current << "\t" << alignment << std::endl;
+
+	      int penalty_value = Gale_and_Church_1993::penalty(alignment);
 	    
-	    int match_value = Gale_and_Church_1993::twoDimensionalMatchCost(alignment,
-									    current.valueAt(dimensions.first), 
-									    lengths_all_languages[dimensions.first],
-									    current.valueAt(dimensions.second),
-									    lengths_all_languages[dimensions.second]);
+	      //TODO: Beginning here, this block of code needs to be reworked in order to correctly implement Simard (1999)
+	      int match_value = Gale_and_Church_1993::twoDimensionalMatchCost(alignment,
+									      current.valueAt(dimensions.first), 
+									      lengths_all_languages[dimensions.first],
+									      current.valueAt(dimensions.second),
+									      lengths_all_languages[dimensions.second]);
 	    
-	    cost += penalty_value + match_value;
+	      cost += penalty_value + match_value;
+	      //TODO: Ending here, this block of code needs to be reworked in order to correctly implement Simard (1999)
 	    
 	   
   
-	    dynamicProgrammingTable.set(current, previous, cost);
-	    //	    dynamicProgrammingTable.calculate(current, previous);
+	      dynamicProgrammingTable.set(current, previous, cost);
 
+	    }
 	    previous.increment();
 
 	  } while (previous.canIncrement());
