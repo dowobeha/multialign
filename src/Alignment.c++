@@ -2,6 +2,28 @@
 
 #include <ostream>
 
+Alignment::Type Alignment::convert(unsigned int n1, unsigned int n2) {
+
+  if (n1==0 && n2==0) {
+    return Alignment::Type::Equal;
+  } else if (n1==0 && n2==1) {
+    return Alignment::Type::Insertion;
+  } else if (n1==1 && n2==0) {
+    return Alignment::Type::Deletion;
+  } else if (n1==1 && n2==1) {
+    return Alignment::Type::Substitution;
+  } else if (n1==1 && n2==2) {
+    return Alignment::Type::Expansion;
+  } else if (n1==2 && n2==1) {
+    return Alignment::Type::Contraction;
+  } else if (n1==2 && n2==2) {
+    return Alignment::Type::Melding;
+  } else {
+    return Alignment::Type::Invalid;
+  }
+
+}
+
 Alignment::Type Alignment::determine(unsigned int current_x, unsigned int current_y,
 				     unsigned int previous_x, unsigned int previous_y) {
 

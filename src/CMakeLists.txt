@@ -11,6 +11,7 @@ endif()
 
 add_definitions(-pg)
 add_executable(align align.c++ util.c++ Alignment.c++ Coordinate.c++ Coordinates.c++ DynamicProgrammingTable.c++ Dimensions.c++ DimensionsIterator.c++ Gale_and_Church_1993.c++ Europarl.c++ SentenceAligner.c++ SentenceAlignments.c++)
+add_executable(hand_test hand_test.c++ util.c++ Alignment.c++ Coordinate.c++ Coordinates.c++ DynamicProgrammingTable.c++ Dimensions.c++ DimensionsIterator.c++ Gale_and_Church_1993.c++ Europarl.c++ SentenceAligner.c++ SentenceAlignments.c++)
 
 add_executable(multextEast multext.c++ util.c++  MultextEast.c++)
 

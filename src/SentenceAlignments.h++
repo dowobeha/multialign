@@ -3,6 +3,7 @@
 #include <fstream>
 #include <ostream>
 #include <limits>
+#include <map>
 #include <string>
 #include <vector>
 
@@ -14,6 +15,8 @@ private:
 
   std::map< std::string, std::vector< int > > values;
 
+  std::map< std::string, std::vector<unsigned int> > lengths;
+
   double cost;
 
   
@@ -22,13 +25,21 @@ public:
 
   SentenceAlignments();
 
-  SentenceAlignments(DynamicProgrammingTable costs);
+  SentenceAlignments(DynamicProgrammingTable costs, std::map< std::string, std::vector<unsigned int> > lang_to_lengths);
 
   bool contains(std::string language);
 
   std::string languages() const;
 
   unsigned int numSegments() const;
+
+  unsigned int numOriginalSegments(std::string language, unsigned int alignedSegmentNumber) const;
+
+  unsigned int length(const std::string language, const unsigned int previous, const unsigned int current) const;
+
+  double calculateCost(const unsigned int previous, const unsigned int current) const;
+
+  double calculateCost(const unsigned int previous, const unsigned int current, const unsigned int l3_numSegments, const unsigned int l3_length, const std::string l3) const;
 
   double getCost() const;
 

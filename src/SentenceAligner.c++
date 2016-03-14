@@ -50,6 +50,8 @@ void SentenceAligner::alignPartialDP(std::vector< std::vector<unsigned int> > le
 
   SentenceAlignments bestAlignments = best2DAlignments(lengths_all_languages, languages);
 
+  std::cerr << "Best 2-d sentence alignments:\t" << bestAlignments << std::endl;
+
   unsigned int segmentsInBestAlignment = bestAlignments.numSegments();
   
 
@@ -58,13 +60,25 @@ void SentenceAligner::alignPartialDP(std::vector< std::vector<unsigned int> > le
       std::cerr << languages[l3] << "\tskipping" << std::endl;
     } else {
       std::cerr << languages[l3] << "\tnot skipping" << std::endl;
-      std::vector<unsigned int> dimMax { segmentsInBestAlignment, (unsigned int) lengths_all_languages[l3].size()-1 };
+
+      // Record the number of segments in each of the two versions of the corpus to be aligned next
+      std::vector<unsigned int> dimMax { 
+	// the number of segments in the previously aligned data
+	segmentsInBestAlignment, 
+	// the number of segments in l3
+	(unsigned int) lengths_all_languages[l3].size()-1 
+      };
+
+      // Initialize 2-dimensional coordinates
       Coordinate current(dimMax), previous(dimMax);
 
+      // Record the languages now being aligned
       std::vector<std::string> currentLanguages{bestAlignments.languages(), languages[l3]};
 
+      // Construct an empty 2-dimensional dynamic programming table
       DynamicProgrammingTable dynamicProgrammingTable(currentLanguages);
 
+      // Incrementally fill in values of dynamic programmic table
       do {
 
 	current.increment();
@@ -192,6 +206,11 @@ SentenceAlignments SentenceAligner::alignFullDP(std::vector< std::vector<unsigne
 
   } while (current.canIncrement());
 
-  return SentenceAlignments{dynamicProgrammingTable};
+  std::map< std::string, std::vector<unsigned int> > lang_to_lengths;
+  for (unsigned int l=0, n=languages.size(); l<n; l+=1) {
+    lang_to_lengths[languages[l]] = lengths_all_languages[l];
+  }
+
+  return SentenceAlignments{dynamicProgrammingTable, lang_to_lengths};
 
 }
