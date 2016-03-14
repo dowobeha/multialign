@@ -41,49 +41,6 @@ int main (int argc, char *argv[]) {
     "en"
   };
 
-  /*
-  auto dp00 = 0;
-
-  std::cerr << "            dp[0][0]\t=\t" << dp00 << std::endl;
-
-  auto dp01 = 
-    // 0-0 match between bg[1] and cs[1]
-    ((Gale_and_Church_1993::match(0,0) + Gale_and_Church_1993::penalty(Alignment::Type::Equal)) +
-    // 1-1 match between bg[1] and en[1]
-     (Gale_and_Church_1993::match(0, 73) + Gale_and_Church_1993::penalty(Alignment::Type::Insertion)) +
-    // 1-1 match between cs[1] and en[1]
-     (Gale_and_Church_1993::match(0, 73) + Gale_and_Church_1993::penalty(Alignment::Type::Insertion)));
-
-  auto dp00to01 = dp00 + dp01;
-
-  std::cerr << "dp[0][0] -> dp[0][1]\t=\t" << dp00to01 << "\t=\t" << dp00 << " + " << dp01 << std::endl;
-
-  auto dp10 = 
-    // 1-1 match between bg[1] and cs[1]
-    ((Gale_and_Church_1993::match(66,59) + Gale_and_Church_1993::penalty(Alignment::Type::Substitution)) +
-    // 1-1 match between bg[1] and en[1]
-     (Gale_and_Church_1993::match(66, 0) + Gale_and_Church_1993::penalty(Alignment::Type::Deletion)) +
-    // 1-1 match between cs[1] and en[1]
-     (Gale_and_Church_1993::match(59, 0) + Gale_and_Church_1993::penalty(Alignment::Type::Deletion)));
-
-  auto dp00to10 = dp00 + dp10;
-
-  std::cerr << "dp[0][0] -> dp[1][0]\t=\t" << dp00to10 << "\t=\t" << dp00 << " + " << dp10 << std::endl;
-  
-  auto dp11 = 
-    // 1-1 match between bg[1] and cs[1]
-    ((Gale_and_Church_1993::match(66, 59) + Gale_and_Church_1993::penalty(Alignment::Type::Substitution)) +
-    // 1-1 match between bg[1] and en[1]
-		(Gale_and_Church_1993::match(66, 73) + Gale_and_Church_1993::penalty(Alignment::Type::Substitution)) +
-    // 1-1 match between cs[1] and en[1]
-     (Gale_and_Church_1993::match(59, 73) + Gale_and_Church_1993::penalty(Alignment::Type::Substitution)));
-
-  auto dp00to11 = dp00 + dp11;
-
-  std::cerr << "dp[0][0] -> dp[1][1]\t=\t" << dp00to11 << "\t=\t" << dp00 << " + " << dp11 << std::endl;
-
-*/
-
 
 
   
@@ -167,37 +124,6 @@ int main (int argc, char *argv[]) {
 	      std::cerr << bestAlignments.languages() << "-" << languages[l3] << " cost\t=\t" << c << std::endl;
 
 	      cost += c;
-
-
-	      /*
-	      for (auto language : languages) {
-		if (bestAlignments.contains(language)) {
-		  unsigned int sumAlreadyAlignedSegments = 0;
-		  for (unsigned int n=previous.valueAt(dimensions.first), n_max=current.valueAt(dimensions.first); n<=n_max; n+=1) {
-		    auto numAlreadyAlignedSegments = bestAlignments.numOriginalSegments(language, n);
-		    sumAlreadyAlignedSegments += numAlreadyAlignedSegments;
-		    std::cerr << "numOriginalSegments(" << language <<", "<<n<<")\t=\t" << numAlreadyAlignedSegments << std::endl;
-		  }
-		  std::cerr << language << "\t" << sumAlreadyAlignedSegments << " segments" << std::endl;
-		}
-	      }
-	      */
-
-	      /*
-	      int penalty_value = Gale_and_Church_1993::penalty(alignment);
-	    
-	      //TODO: Beginning here, this block of code needs to be reworked in order to correctly implement Simard (1999)
-	      int match_value = Gale_and_Church_1993::twoDimensionalMatchCost(alignment,
-									      current.valueAt(dimensions.first), 
-									      lengths_all_languages[dimensions.first],
-									      current.valueAt(dimensions.second),
-									      lengths_all_languages[dimensions.second]);
-	    
-	      cost += penalty_value + match_value;
-	      */
-	      //TODO: Ending here, this block of code needs to be reworked in order to correctly implement Simard (1999)
-	    
-	   
   
 	      dynamicProgrammingTable.set(current, previous, cost);
 
