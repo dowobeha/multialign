@@ -119,7 +119,9 @@ int main (int argc, char *argv[]) {
 	      } 
 	      
 
-	      auto c = bestAlignments.calculateCost(previous.valueAt(dimensions.first), current.valueAt(dimensions.first)) + bestAlignments.calculateCost(previous.valueAt(dimensions.first), current.valueAt(dimensions.first), l3_numSegments, l3_length, languages[l3]);
+	      auto c = 
+		bestAlignments.calculateCost(previous.valueAt(dimensions.first), current.valueAt(dimensions.first)) + 
+		bestAlignments.calculateCost(previous.valueAt(dimensions.first), current.valueAt(dimensions.first), l3_numSegments, l3_length, languages[l3]);
 
 	      std::cerr << bestAlignments.languages() << "-" << languages[l3] << " cost\t=\t" << c << std::endl;
 
@@ -136,7 +138,14 @@ int main (int argc, char *argv[]) {
   
       } while (current.canIncrement());
 
-
+      auto bt = dynamicProgrammingTable.backtrace();
+      for (const auto& keyValue : bt) {
+	std::cerr << "Backtrace:\t" << keyValue.first << "\t";
+	for (const auto& v : keyValue.second) {
+	  std::cerr << v << " ";
+	}
+	std::cerr << std::endl;
+      }
 
     }
   }
