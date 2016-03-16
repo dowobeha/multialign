@@ -10,8 +10,10 @@ else()
 endif()
 
 add_definitions(-pg)
+
 add_executable(align align.c++ util.c++ Alignment.c++ Coordinate.c++ Coordinates.c++ DynamicProgrammingTable.c++ Dimensions.c++ DimensionsIterator.c++ Gale_and_Church_1993.c++ Europarl.c++ SentenceAligner.c++ SentenceAlignments.c++)
-add_executable(hand_test hand_test.c++ util.c++ Alignment.c++ Coordinate.c++ Coordinates.c++ DynamicProgrammingTable.c++ Dimensions.c++ DimensionsIterator.c++ Gale_and_Church_1993.c++ Europarl.c++ SentenceAligner.c++ SentenceAlignments.c++)
+
+add_executable(hand_test hand_test.c++ util.c++ Alignment.h++ Alignment.c++ Coordinate.h++ Coordinate.c++ Coordinates.h++ Coordinates.c++ DynamicProgrammingTable.h++ DynamicProgrammingTable.c++ Dimensions.h++ Dimensions.c++ DimensionsIterator.h++ DimensionsIterator.c++ Gale_and_Church_1993.h++ Gale_and_Church_1993.c++ Europarl.h++ Europarl.c++ SentenceAligner.h++ SentenceAligner.c++ SentenceAlignments.h++ SentenceAlignments.c++)
 
 add_executable(multextEast multext.c++ util.c++  MultextEast.c++)
 
