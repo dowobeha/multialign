@@ -47,7 +47,7 @@ const std::string MultextEast::sentence_pattern = R"(^<s xml:id=.*$)";
 const std::regex MultextEast::sentence_regex{sentence_pattern};
 
 
-MultextEast::MultextEast(std::string dayfile, std::vector<std::string> languages, std::string dir, std::string outdir) : dayfile(dayfile), languages(languages), dir(dir), outdir(outdir) {
+MultextEast::MultextEast(std::string dayfile, std::vector<std::string> languages, std::string dir, std::string outdir) : dayfile(dayfile), dir(dir), outdir(outdir), languages(languages) {
 
   //  std::function<void(std::ofstream *)> close_ofstream 
   auto close_ofstream = [](std::ofstream *o) -> void { 
@@ -75,7 +75,7 @@ MultextEast::MultextEast(std::string dayfile, std::vector<std::string> languages
 
 bool MultextEast::skip(std::string language, std::map< std::string, MultextEastID>& map, std::regex pattern, std::string pattern_string) {
   //std::cerr << "skipping in " << language << std::endl;
-  auto old_index = index[language];
+  //auto old_index = index[language];
 
   bool success = false;
   std::smatch matches;

@@ -8,7 +8,7 @@
 #include <ostream>
 #include <vector>
 
-Coordinate::Coordinate(const std::vector<unsigned int> max) : value(max.size(), 0), max(max) {
+Coordinate::Coordinate(const std::vector<unsigned int> max) : max(max), value(max.size(), 0) {
   // This space intentionally left blank
 }
 

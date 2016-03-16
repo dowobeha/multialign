@@ -4,7 +4,7 @@
 #include <utility>
 #include <iostream>
 
-DimensionsIterator::DimensionsIterator(const unsigned int max, const unsigned int x, const unsigned int y) : max(max), x(x), y(y) {
+DimensionsIterator::DimensionsIterator(const unsigned int max, const unsigned int x, const unsigned int y) : x(x), y(y), max(max) {
   // This space intentionally left blank
 }
 

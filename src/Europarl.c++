@@ -22,11 +22,11 @@ Europarl::Europarl(std::string dayfile,
 		   std::vector<std::string> languages, 
 		   std::string dir, 
 		   std::string outdir, 
-		   std::string preprocessor) : dayfile(dayfile), 
-					       languages(languages), 
-					       dir(dir), 
-					       outdir(outdir), 
-					       preprocessor(preprocessor) {
+		   std::string preprocessor) : dayfile(dayfile),
+					       dir(dir),
+					       outdir(outdir),
+					       preprocessor(preprocessor),
+                 languages(languages) {
 
   // construct a custom deleter for a file output stream
   // 
@@ -70,7 +70,7 @@ Europarl::Europarl(std::string dayfile,
 
 bool Europarl::skip(std::string language, std::regex pattern, std::string pattern_string) {
 
-  auto old_index = index[language];
+//  auto old_index = index[language];
 
   bool success = false;
 
