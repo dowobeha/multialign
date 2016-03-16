@@ -15,6 +15,100 @@ SentenceAlignments::SentenceAlignments(DynamicProgrammingTable costs, std::map< 
   // This space intentionally left blank
 }
 
+SentenceAlignments::SentenceAlignments(const SentenceAlignments& alignments, const DynamicProgrammingTable& costs)
+: values{SentenceAlignments::merge(alignments, costs)}, lengths{alignments.lengths}, cost{costs.cost()} {
+  // This space intentionally left blank
+}
+
+/*
+ std::vector<int> alignment_of_1_with_2 {1, 2, -1, 3, -1, 4, -1};
+ std::vector<int> alignment_of_2_with_1 {1, -1, 2, -1, 3, -1};
+ 
+ WHEN( "further aligned with language 3" ) {
+ std::vector<int> alignment_of_3_with_1_and_2 {1, -1, 2, -1};
+ std::vector<int> alignment_of_1_and_2_with_3 {1, 2, -1, 3, -1};
+ 
+ std::vector<int> alignment_of_1_with_2_and_3 {1, 2, 3, -1, 4, -1};
+ std::vector<int> alignment_of_2_with_1_and_3 {1, 2, -1, 4, -1};
+ */
+
+std::vector<int> SentenceAlignments::merge(const std::vector<int>& previouslyAlignedValues,
+                                           const std::vector<int>& newlyAlignedValues) {
+  
+  auto newlyAlignedValuesIterator = newlyAlignedValues.begin();
+  const auto& newlyAlignedValuesIteratorEnd = newlyAlignedValues.end();
+  
+  auto previouslyAlignedValuesIterator = previouslyAlignedValues.begin();
+  const auto& previouslyAlignedValuesIteratorEnd = previouslyAlignedValues.end();
+  
+  std::vector<int> values;
+  
+  while (newlyAlignedValuesIterator      != newlyAlignedValuesIteratorEnd &&
+         previouslyAlignedValuesIterator != previouslyAlignedValuesIteratorEnd) {
+    
+    const auto& newlyAlignedValue = *newlyAlignedValuesIterator;
+    const auto& previouslyAlignedValue = *previouslyAlignedValuesIterator;
+    
+    if (newlyAlignedValue < 0) {
+      
+      if (previouslyAlignedValue < 0) {
+        values.push_back(previouslyAlignedValue);
+        ++previouslyAlignedValuesIterator;
+        ++newlyAlignedValuesIterator;
+      } else {
+        values.push_back(previouslyAlignedValue);
+        ++previouslyAlignedValuesIterator;
+      }
+      
+    } else {
+      
+      if (previouslyAlignedValue < 0) {
+        ++previouslyAlignedValuesIterator;
+      } else {
+        values.push_back(previouslyAlignedValue);
+        ++previouslyAlignedValuesIterator;
+        ++newlyAlignedValuesIterator;
+      }
+      
+    }
+    
+  }
+  
+  return values;
+  
+}
+
+std::map< std::string, std::vector< int > > SentenceAlignments::merge(const SentenceAlignments& alignments, const DynamicProgrammingTable& costs) {
+  
+  std::map< std::string, std::vector< int > > results;
+  
+  std::map< std::string, std::vector< int > > newlyAlignedBacktrace = costs.backtrace();
+  std::string previouslyAlignedLanguages = alignments.languages();
+  
+  for (const auto& newlyAlignedKeyValue : newlyAlignedBacktrace) {
+    
+    const auto& newlyAlignedLanguage = newlyAlignedKeyValue.first;
+    const auto& newlyAlignedValues   = newlyAlignedKeyValue.second;
+    
+    if (newlyAlignedLanguage == previouslyAlignedLanguages) {
+      
+      for (const auto& previouslyAlignedKeyValue : alignments.values) {
+        
+        const auto& previouslyAlignedLanguage = previouslyAlignedKeyValue.first;
+        const auto& previouslyAlignedValues   = previouslyAlignedKeyValue.second;
+        
+        results[previouslyAlignedLanguage] = merge(previouslyAlignedValues, newlyAlignedValues);
+      }
+      
+      
+    } else {
+      results[newlyAlignedLanguage] = newlyAlignedValues;
+    }
+    
+  }
+  
+  return results;
+}
 
 bool SentenceAlignments::contains(std::string language) {
   return values.find(language) != values.end();

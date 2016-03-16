@@ -19,13 +19,17 @@ private:
 
   double cost;
 
-  
+  static std::map< std::string, std::vector< int > > merge(const SentenceAlignments& alignments, const DynamicProgrammingTable& costs);
+
 public:
 
+  static std::vector<int> merge(const std::vector<int>& previouslyAlignedValues, const std::vector<int>& newlyAlignedValues);
 
   SentenceAlignments();
 
   SentenceAlignments(DynamicProgrammingTable costs, std::map< std::string, std::vector<unsigned int> > lang_to_lengths);
+  
+  SentenceAlignments(const SentenceAlignments& alignments, const DynamicProgrammingTable& costs);
 
   bool contains(std::string language);
 

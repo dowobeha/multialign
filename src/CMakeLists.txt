@@ -17,6 +17,7 @@ add_executable(hand_test hand_test.c++ util.c++ Alignment.h++ Alignment.c++ Coor
 
 add_executable(multextEast multext.c++ util.c++  MultextEast.c++)
 
+add_executable(run_unit_tests run_unit_tests.c++ util.c++ Alignment.h++ Alignment.c++ Coordinate.h++ Coordinate.c++ Coordinates.h++ Coordinates.c++ DynamicProgrammingTable.h++ DynamicProgrammingTable.c++ Dimensions.h++ Dimensions.c++ DimensionsIterator.h++ DimensionsIterator.c++ Gale_and_Church_1993.h++ Gale_and_Church_1993.c++ Europarl.h++ Europarl.c++ SentenceAligner.h++ SentenceAligner.c++ SentenceAlignments.h++ SentenceAlignments.c++ SentenceAlignments.unit_tests.c++)
 
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pg")
 set(CMAKE_BUILD_TYPE Debug)
