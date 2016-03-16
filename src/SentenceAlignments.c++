@@ -43,33 +43,29 @@ std::vector<int> SentenceAlignments::merge(const std::vector<int>& previouslyAli
   
   std::vector<int> values;
   
-  while (newlyAlignedValuesIterator      != newlyAlignedValuesIteratorEnd &&
-         previouslyAlignedValuesIterator != previouslyAlignedValuesIteratorEnd) {
-    
-    const auto& newlyAlignedValue = *newlyAlignedValuesIterator;
-    const auto& previouslyAlignedValue = *previouslyAlignedValuesIterator;
-    
-    if (newlyAlignedValue < 0) {
+  while (newlyAlignedValuesIterator      != newlyAlignedValuesIteratorEnd) {
+
+    if (*newlyAlignedValuesIterator < 0) {
       
-      if (previouslyAlignedValue < 0) {
-        values.push_back(previouslyAlignedValue);
-        ++previouslyAlignedValuesIterator;
-        ++newlyAlignedValuesIterator;
-      } else {
-        values.push_back(previouslyAlignedValue);
-        ++previouslyAlignedValuesIterator;
-      }
+      values.push_back(*newlyAlignedValuesIterator);
+      ++newlyAlignedValuesIterator;
       
     } else {
       
-      if (previouslyAlignedValue < 0) {
+      while (previouslyAlignedValuesIterator != previouslyAlignedValuesIteratorEnd && *previouslyAlignedValuesIterator >= 0) {
+        
+        values.push_back(*previouslyAlignedValuesIterator);
         ++previouslyAlignedValuesIterator;
-      } else {
-        values.push_back(previouslyAlignedValue);
-        ++previouslyAlignedValuesIterator;
-        ++newlyAlignedValuesIterator;
+        
       }
       
+      if (previouslyAlignedValuesIterator != previouslyAlignedValuesIteratorEnd) {
+        ++previouslyAlignedValuesIterator;
+      }
+      
+      if (newlyAlignedValuesIterator != newlyAlignedValuesIteratorEnd) {
+        ++newlyAlignedValuesIterator;
+      }
     }
     
   }

@@ -45,7 +45,7 @@ SCENARIO( "Sentence alignments can be merged", "[SentenceAlignments]" ) {
       std::vector<int> alignment_of_1_and_2_with_3 {1, 2, -1, 3, -1};
       
       std::vector<int> alignment_of_1_with_2_and_3 {1, 2, 3, -1, 4, -1};
-      std::vector<int> alignment_of_2_with_1_and_3 {1, 2, -1, 4, -1};
+      std::vector<int> alignment_of_2_with_1_and_3 {1, 2, -1, 3, -1};
 
       THEN("results are as expected") {
         REQUIRE(alignment_of_1_with_2_and_3 == SentenceAlignments::merge(alignment_of_1_with_2, alignment_of_1_and_2_with_3));
