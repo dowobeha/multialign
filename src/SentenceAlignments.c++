@@ -44,7 +44,7 @@ std::vector<int> SentenceAlignments::merge(const std::vector<int>& previouslyAli
   std::vector<int> values;
   
   while (newlyAlignedValuesIterator      != newlyAlignedValuesIteratorEnd) {
-
+    
     if (*newlyAlignedValuesIterator < 0) {
       
       values.push_back(*newlyAlignedValuesIterator);
@@ -132,146 +132,146 @@ unsigned int SentenceAlignments::numSegments() const {
       count += 1;
     }
   }
-
+  
   return count;
 }
 
 unsigned int SentenceAlignments::length(const std::string language, const unsigned int previous, const unsigned int current) const {
-
+  
   unsigned int count = 0;
-
+  
   unsigned int segment = 1;
-
+  
   for (const auto value : values.at(language)) {
-
+    
     if (value < 0) {
       segment += 1;
       if (segment > current) {
-	break;
+        break;
       }
-    } else if (segment >= previous && segment <= current) {
+    } else if (segment > previous && segment <= current) {
       count += lengths.at(language).at(value);
     }
-
+    
   }
-
+  
   return count;
-
+  
 }
 
 double SentenceAlignments::calculateCost(const unsigned int previous, const unsigned int current) const {
-
+  
   //  std::cerr << "*******************************" << std::endl << "calculateCost( previous=" << previous << " , current=" << current << " )" << std::endl;
-
+  
   //  std::cerr << (*this) << std::endl;
-
+  
   //std::cerr << "previous = " << previous << "\tcurrent = " << current << std::endl;
-
+  
   double cost = 0.0;
-
-
+  
+  
   for (const auto& keyValue1 : values) {
     auto l1 = keyValue1.first;
-
+    
     for (const auto& keyValue2 : values) {
       auto l2 = keyValue2.first;
-
+      
       if (l1 < l2) {
-	
-	unsigned int l1_sum_aligned_segments = 0;
-	unsigned int l2_sum_aligned_segments = 0;
-	
-	for (unsigned int n=previous+1; n<=current; n+=1) {
-	  l1_sum_aligned_segments += this->numOriginalSegments(l1, n);
-	  l2_sum_aligned_segments += this->numOriginalSegments(l2, n);
-	}
-	
-	auto alignmentType = Alignment::convert(l1_sum_aligned_segments, l2_sum_aligned_segments);
-
-	auto l1_length = this->length(l1, previous, current);
-	auto l2_length = this->length(l2, previous, current);   
-
-	auto penalty = Gale_and_Church_1993::penalty(alignmentType);
-	auto match = Gale_and_Church_1993::match(l1_length, l2_length);
-
-	std::cerr << l1 << "-" << l2 << "\t" << alignmentType << "\t" << penalty << "(align: " << l1_sum_aligned_segments << ", " << l2_sum_aligned_segments << ") + " << match << "(match: " << l1_length << " " << l2_length << ")" << std::endl;
-
-	cost += penalty + match;
-	
+        
+        unsigned int l1_sum_aligned_segments = 0;
+        unsigned int l2_sum_aligned_segments = 0;
+        
+        for (unsigned int n=previous+1; n<=current; n+=1) {
+          l1_sum_aligned_segments += this->numOriginalSegments(l1, n);
+          l2_sum_aligned_segments += this->numOriginalSegments(l2, n);
+        }
+        
+        auto alignmentType = Alignment::convert(l1_sum_aligned_segments, l2_sum_aligned_segments);
+        
+        auto l1_length = this->length(l1, previous, current);
+        auto l2_length = this->length(l2, previous, current);
+        
+        auto penalty = Gale_and_Church_1993::penalty(alignmentType);
+        auto match = Gale_and_Church_1993::match(l1_length, l2_length);
+        
+        //std::cerr << l1 << "-" << l2 << "\t" << alignmentType << "\t" << penalty << "(align: " << l1_sum_aligned_segments << ", " << l2_sum_aligned_segments << ") + " << match << "(match: " << l1_length << " " << l2_length << ")" << std::endl;
+        
+        cost += penalty + match;
+        
       }
     }
   }
   /*
-
-  for (auto language : languages) {
-    if (bestAlignments.contains(language)) {
-      unsigned int sumAlreadyAlignedSegments = 0;
-      for (unsigned int n=previous.valueAt(dimensions.first), n_max=current.valueAt(dimensions.first); n<=n_max; n+=1) {
-	auto numAlreadyAlignedSegments = bestAlignments.numOriginalSegments(language, n);
-	sumAlreadyAlignedSegments += numAlreadyAlignedSegments;
-	std::cerr << "numOriginalSegments(" << language <<", "<<n<<")\t=\t" << numAlreadyAlignedSegments << std::endl;
-      }
-      std::cerr << language << "\t" << sumAlreadyAlignedSegments << " segments" << std::endl;
-    }
-  }
-  */
-
+   
+   for (auto language : languages) {
+   if (bestAlignments.contains(language)) {
+   unsigned int sumAlreadyAlignedSegments = 0;
+   for (unsigned int n=previous.valueAt(dimensions.first), n_max=current.valueAt(dimensions.first); n<=n_max; n+=1) {
+   auto numAlreadyAlignedSegments = bestAlignments.numOriginalSegments(language, n);
+   sumAlreadyAlignedSegments += numAlreadyAlignedSegments;
+   std::cerr << "numOriginalSegments(" << language <<", "<<n<<")\t=\t" << numAlreadyAlignedSegments << std::endl;
+   }
+   std::cerr << language << "\t" << sumAlreadyAlignedSegments << " segments" << std::endl;
+   }
+   }
+   */
+  
   //  std::cerr << "****************************" << std::endl;
-
+  
   return cost;
-
+  
 }
 
 double SentenceAlignments::calculateCost(const unsigned int previous, const unsigned int current, const unsigned int l3_numSegments, const unsigned int l3_length, const std::string l3) const {
-
+  
   double cost = 0.0;
-
-
+  
+  
   for (const auto& keyValue1 : values) {
     auto l1 = keyValue1.first;
-	
+    
     unsigned int l1_sum_aligned_segments = 0;
-	
+    
     for (unsigned int n=previous+1; n<=current; n+=1) {
       l1_sum_aligned_segments += this->numOriginalSegments(l1, n);
     }
-	
+    
     auto alignmentType = Alignment::convert(l1_sum_aligned_segments, l3_numSegments);
-
+    
     auto l1_length = this->length(l1, previous, current);
-
+    
     auto penalty = Gale_and_Church_1993::penalty(alignmentType);
     auto match = Gale_and_Church_1993::match(l1_length, l3_length);
-
-    std::cerr << l1 << "-" << l3 << "\t" << alignmentType << "\t" << penalty << "(align: " << l1_sum_aligned_segments << ", " << l3_numSegments << ") + " << match << "(match: " << l1_length << " " << l3_length << ")" << std::endl;
-
+    
+    //std::cerr << l1 << "-" << l3 << "\t" << alignmentType << "\t" << penalty << "(align: " << l1_sum_aligned_segments << ", " << l3_numSegments << ") + " << match << "(match: " << l1_length << " " << l3_length << ") l1_length=" << l1_length << " l3_length=" << l3_length << " l1_sum_aligned_segments=" << l1_sum_aligned_segments << " l3_numSegments=" << l3_numSegments << " current=" << current << " previous=" << previous << std::endl;
+    
     cost += penalty + match;
-	
+    
   }
-
+  
   return cost;
-
+  
 }
 
 unsigned int SentenceAlignments::numOriginalSegments(const std::string language, unsigned int alignedSegmentNumber) const {
-
+  
   unsigned int count = 0;
-
+  
   unsigned int currentAlignedSegmentNumber = 1;
-
+  
   for (const auto value : values.at(language)) {
-
+    
     if (value < 0) {
       currentAlignedSegmentNumber += 1;
       if (currentAlignedSegmentNumber > alignedSegmentNumber) {
-	break;
+        break;
       }
     } else if (currentAlignedSegmentNumber == alignedSegmentNumber) {
-	count += 1;
+      count += 1;
     }
-
+    
   }
-
+  
   return count;
 }
 
@@ -280,10 +280,10 @@ double SentenceAlignments::getCost() const {
 }
 
 void SentenceAlignments::writeToFile(std::ofstream& out, const std::string& language,
-				     std::vector<std::string>& sentences) {
-
+                                     std::vector<std::string>& sentences) {
+  
   for (auto value : values[language]) {
-
+    
     if (value < 0) {
       out << std::endl;
       std::cerr << std::endl << language << "\t";
@@ -294,17 +294,17 @@ void SentenceAlignments::writeToFile(std::ofstream& out, const std::string& lang
       //      std::cerr << paragraphs[language][paragraph_index][value-1] << " ";
       std::cerr << sentences[value-1] << " ";
     }
-  } 
-
+  }
+  
 }
 
 
 std::ostream& operator<<(std::ostream& os, const SentenceAlignments& alignments) {
-
+  
   os << std::endl;
   os << std::endl;
-
-
+  
+  
   for (auto& keyValue : alignments.values) {
     os << keyValue.first << "\t";
     for (auto& a : keyValue.second) {
@@ -312,34 +312,34 @@ std::ostream& operator<<(std::ostream& os, const SentenceAlignments& alignments)
     }
     os << std::endl;
   }
-
+  
   std::map< std::string, std::vector<unsigned int> > counts;
-
+  
   for (auto& keyValue : alignments.values) {
     counts[keyValue.first] = std::vector<unsigned int>();
     unsigned int counter = 0;
     for (auto& a : keyValue.second) {
       if (a < 0) {
-	counts[keyValue.first].push_back(counter);
-	counter = 0;
+        counts[keyValue.first].push_back(counter);
+        counter = 0;
       } else {
-	counter += 1;
+        counter += 1;
       }
     }
   }
-
+  
   for (unsigned int j=0, p=counts.begin()->second.size(); j<p; j+=1) {
     unsigned int l = 0;
     unsigned int n = alignments.values.size();
     for (auto& keyValue : alignments.values) {
       os << counts[keyValue.first][j];
       if (++l < n) {
-	os << ':';
+        os << ':';
       } else {
-	os << std::endl;
+        os << std::endl;
       }
     }
   }
-
+  
   return os;
 }

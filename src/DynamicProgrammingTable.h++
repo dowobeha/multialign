@@ -1,6 +1,7 @@
 #pragma once
 
 #include <map>
+#include <ostream>
 #include <string>
 #include <vector>
 
@@ -30,5 +31,7 @@ public:
 
   double cost() const;
 
+  friend std::ostream& operator<<(std::ostream& os, const DynamicProgrammingTable& t);
+  
 };
 

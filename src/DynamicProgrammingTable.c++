@@ -3,6 +3,7 @@
 #include <iostream>
 #include <functional>
 #include <map>
+#include <sstream>
 #include <vector>
 
 #include "Alignment.h++"
@@ -33,13 +34,17 @@ void DynamicProgrammingTable::set(Coordinate current, Coordinate previous, doubl
 
     // Associate the new cost with the current point
     costs.emplace(current, Cost(previous, cost));
+    //std::cerr << "\tNever seen  " << current << "\tnew cost =\t" << cost << "  from " << previous << std::endl;
 
   } else if ( cost < search->second.cost) {
 
     costs.erase(current);
     costs.emplace(current, Cost(previous, cost));
-
-  } 
+    //std::cerr << "\tNew cost of " << current << "\t    cost =\t" << cost << "  from " << previous << "  < " << search->second.cost << std::endl;
+    
+  } else {
+    //std::cerr << "\t    cost of " << current << "\t    cost =\t" << cost << "  from " << previous << "  > " << search->second.cost << std::endl;
+  }
 
 }
 
@@ -78,16 +83,34 @@ std::map< std::string, std::vector< int > > DynamicProgrammingTable::backtrace()
 
     for (unsigned int d=0, max=dimensions(); d<max; d+=1) {
 
-      std::cerr << "Dimension " << d << ":\t";
+      //std::cerr << "Dimension " << d << ":\t";
       for (auto i1=cost.previous.valueAt(d)+1, i2 = current.valueAt(d); i1<=i2; i1+=1) {
-	std::cerr << "txt["<<d<<"]["<<i1<<"]" << " ";
+//	std::cerr << "txt["<<d<<"]["<<i1<<"]" << " ";
 	results[languages[d]].push_back(i1);
       }
       results[languages[d]].push_back(-1);
-      std::cerr << std::endl;
+  //    std::cerr << std::endl;
     }
   }
   
   return results;
 }
 
+std::ostream& operator<<(std::ostream& os, const DynamicProgrammingTable& t) {
+
+  std::stringstream ss;
+  for (auto langItr = t.languages.begin(), end=t.languages.end(); langItr != end; ) {
+    ss << *langItr;
+    ++langItr;
+    if (langItr != end) {
+      ss << "-";
+    }
+  }
+  
+  for (const auto& keyValue : t.costs) {
+    os << ss.str() << "\t" << keyValue.second.previous << " -> " << keyValue.first << "\t" << keyValue.second.cost << std::endl;
+  }
+  
+  
+  return os;
+}
