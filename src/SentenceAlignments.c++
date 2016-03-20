@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include <map>
+#include <sstream>
 #include <string>
 #include <vector>
 
@@ -15,9 +16,9 @@ SentenceAlignments::SentenceAlignments(DynamicProgrammingTable costs, std::map< 
   // This space intentionally left blank
 }
 
-SentenceAlignments::SentenceAlignments(const SentenceAlignments& alignments, const DynamicProgrammingTable& costs)
+SentenceAlignments::SentenceAlignments(const SentenceAlignments& alignments, const DynamicProgrammingTable& costs, const std::string new_lang, const std::vector<unsigned int>& lengths_new_lang)
 : values{SentenceAlignments::merge(alignments, costs)}, lengths{alignments.lengths}, cost{costs.cost()} {
-  // This space intentionally left blank
+  lengths[new_lang] = lengths_new_lang;
 }
 
 /*
@@ -298,6 +299,40 @@ void SentenceAlignments::writeToFile(std::ofstream& out, const std::string& lang
   
 }
 
+std::string SentenceAlignments::alignmentsString() const {
+
+  std::ostringstream os;
+
+  std::map< std::string, std::vector<unsigned int> > counts;
+  
+  for (auto& keyValue : this->values) {
+    counts[keyValue.first] = std::vector<unsigned int>();
+    unsigned int counter = 0;
+    for (auto& a : keyValue.second) {
+      if (a < 0) {
+        counts[keyValue.first].push_back(counter);
+        counter = 0;
+      } else {
+        counter += 1;
+      }
+    }
+  }
+  
+  for (unsigned int j=0, p=counts.begin()->second.size(); j<p; j+=1) {
+    unsigned int l = 0;
+    unsigned int n = this->values.size();
+    for (auto& keyValue : this->values) {
+      os << counts[keyValue.first][j];
+      if (++l < n) {
+        os << ':';
+      } else {
+        os << std::endl;
+      }
+    }
+  }
+  
+  return os.str();
+}
 
 std::ostream& operator<<(std::ostream& os, const SentenceAlignments& alignments) {
   
@@ -313,33 +348,7 @@ std::ostream& operator<<(std::ostream& os, const SentenceAlignments& alignments)
     os << std::endl;
   }
   
-  std::map< std::string, std::vector<unsigned int> > counts;
-  
-  for (auto& keyValue : alignments.values) {
-    counts[keyValue.first] = std::vector<unsigned int>();
-    unsigned int counter = 0;
-    for (auto& a : keyValue.second) {
-      if (a < 0) {
-        counts[keyValue.first].push_back(counter);
-        counter = 0;
-      } else {
-        counter += 1;
-      }
-    }
-  }
-  
-  for (unsigned int j=0, p=counts.begin()->second.size(); j<p; j+=1) {
-    unsigned int l = 0;
-    unsigned int n = alignments.values.size();
-    for (auto& keyValue : alignments.values) {
-      os << counts[keyValue.first][j];
-      if (++l < n) {
-        os << ':';
-      } else {
-        os << std::endl;
-      }
-    }
-  }
+  os << alignments.alignmentsString() << std::endl;
   
   return os;
 }

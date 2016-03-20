@@ -121,7 +121,7 @@ SentenceAlignments SentenceAligner::alignPartialDP(std::vector< std::vector<unsi
               for (unsigned int n=previous.valueAt(dimensions.second)+1, n_max=current.valueAt(dimensions.second); n<=n_max; n+=1) {
                 l3_length += lengths_all_languages[l3][n];
               }
-              
+              //std::cerr << "Calculating cost of best alignments" << std::endl;
               auto a = bestAlignments.calculateCost(previous.valueAt(dimensions.first), current.valueAt(dimensions.first));
               
               //std::cerr << "\t" << bestAlignments.languages() << "-" << languages[l3] << "\t" << previous << " -> " << current << std::endl;
@@ -156,8 +156,9 @@ SentenceAlignments SentenceAligner::alignPartialDP(std::vector< std::vector<unsi
        std::cerr << std::endl;
        }
        */
-      
-      bestAlignments = SentenceAlignments(bestAlignments, dynamicProgrammingTable);
+      std::cerr << "Updating bestAlignments by adding " << languages[l3] << " to achieve ";
+      bestAlignments = SentenceAlignments(bestAlignments, dynamicProgrammingTable, languages[l3], lengths_all_languages[l3]);
+      std::cerr << bestAlignments.languages() << std::endl;
       
       //std::cerr << "Updated best sentence alignments:\t" << bestAlignments << std::endl;
       

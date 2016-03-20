@@ -42,13 +42,13 @@ int main (int argc, char *argv[]) {
  Lengths for en: [ 0 53  94 160 28 30 119 63 159  96 97 57 ]
  
  */
-  
+  /*
   std::vector< std::vector<unsigned int> > lengths_all_languages {
     std::vector<unsigned int> {0, 64, 110, 149, 31, 29, 81, 68, 170, 100, 78, 52},
     std::vector<unsigned int> {0, 58, 112, 110, 27, 27, 138, 23, 123, 90, 94, 48},
     std::vector<unsigned int> {0, 53, 94, 160, 28, 30, 119, 63, 159, 96, 97, 57},
   };
-
+*/
   /*
   std::vector< std::vector<unsigned int> > lengths_all_languages {
     std::vector<unsigned int> {0, 149, 31},
@@ -57,10 +57,24 @@ int main (int argc, char *argv[]) {
   };
   */
   
+  /*
+   Lengths for bg:	[ 0 66 215 ]
+   Lengths for cs:	[ 0 59 217 ]
+   Lengths for en:	[ 0 73 238 ]
+   Lengths for hu:	[ 0 67 116 93 ]
+   */
+  std::vector< std::vector<unsigned int> > lengths_all_languages {
+    std::vector<unsigned int> {0, 66, 215    },
+    std::vector<unsigned int> {0, 59, 217    },
+    std::vector<unsigned int> {0, 73, 238    },
+    std::vector<unsigned int> {0, 67, 116, 93},
+  };
+  
   std::vector< std::string > languages {
     "bg",
     "cs",
-    "en"
+    "en",
+    "hu"
   };
 
   SentenceAlignments bestIncrementalAlignments = SentenceAligner::alignPartialDP(lengths_all_languages, languages);

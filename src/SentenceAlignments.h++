@@ -29,7 +29,7 @@ public:
 
   SentenceAlignments(DynamicProgrammingTable costs, std::map< std::string, std::vector<unsigned int> > lang_to_lengths);
   
-  SentenceAlignments(const SentenceAlignments& alignments, const DynamicProgrammingTable& costs);
+  SentenceAlignments(const SentenceAlignments& alignments, const DynamicProgrammingTable& costs, const std::string new_lang, const std::vector<unsigned int>& lengths_new_lang);
 
   bool contains(std::string language);
 
@@ -46,6 +46,8 @@ public:
   double calculateCost(const unsigned int previous, const unsigned int current, const unsigned int l3_numSegments, const unsigned int l3_length, const std::string l3) const;
 
   double getCost() const;
+
+  std::string alignmentsString() const;
 
   friend std::ostream& operator<<(std::ostream& os, const SentenceAlignments& s);
 
